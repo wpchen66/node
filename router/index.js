@@ -8,4 +8,5 @@ router.get('/', function (req, res) {
 })
 router.post('/register',route.register)
 router.post('/login', route.login)
+router.get('/getGoodsList', route.getGoodsList)
 export default router

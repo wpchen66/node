@@ -1,6 +1,6 @@
 <template>
   <div id ="login">
-    <div class="login">
+    <div class="login" >
       <form @submit.prevent="login">
       <div class="username">
         <label for="username">用户名:</label><input ref="username" placeholder="请输入用户名或者电话" id="username" name="username" type="text">
@@ -17,22 +17,44 @@
   </div>
 </template>
 <script>
+import Vue from "vue";
+import { setLstorage } from "@/utils/util.js";
+import { Message } from "element-ui";
+import { Loading } from "element-ui";
 export default {
   methods: {
-    login: function () {
-      const _this = this
-      const username = _this.$refs.username.value
-      const password = _this.$refs.password.value
-      _this.$http({
-        method: 'POST',
-        url: '/api/login',
-        data: {
-          username,
-          password
-        }
-      }).then(data => {
-        console.log(data)
-      })
+    login: function() {
+      const _this = this;
+      const username = _this.$refs.username.value;
+      const password = _this.$refs.password.value;
+      let loading = Loading.service({
+        fullscreen: true
+      });
+      _this
+        .$http({
+          method: "POST",
+          url: "/api/login",
+          data: {
+            username,
+            password
+          }
+        })
+        .then(data => {
+          let res = data.data;
+          let status = res.success;
+          loading.close();
+          if (res.success) {
+            Message.success({
+              message: res.message
+            });
+            setLstorage('token', res.token)
+            _this.$router.push('/goodslist')
+          } else {
+            Message.error({
+              message: res.message
+            });
+          }
+        });
     }
   }
 };

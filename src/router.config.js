@@ -15,7 +15,11 @@ const Register = (resolve) =>  {
     resolve(module)
   })
 }
-
+const GoodsList = (resolve) => {
+  import('com/goodsList/goodsList').then(module => {
+    resolve(module)
+  })
+}
 const router = new VueRouter({
   mode: 'hash',
   linkActiveClass: 'active',
@@ -33,6 +37,11 @@ const router = new VueRouter({
       path: '/register',
       name: 'register',
       component: Register
+    },
+    {
+      path: '/goodslist',
+      name: 'goodslist',
+      component: GoodsList
     }
   ]
 })

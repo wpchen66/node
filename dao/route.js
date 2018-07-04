@@ -1,14 +1,19 @@
 import {userModel} from './collection.js'
 import { Model } from 'mongoose';
+import {verifyjwt} from '../util/util.js'
 import * as db from './operation.js'
+import * as select from './config.js'
+const jwt = require('jsonwebtoken')
 export function register(req, res) {
-  console.log(1)
   const username = req.body.username
   const mobile = req.body.mobile
   const password = req.body.password
   const nickname = req.body.nickname
-  function callback(result) {
-    res.send(result)
+  function callback(result, token) {
+    if(token){
+      req.setHeader()
+    }
+   return res.send(result)
   }
   db.addUser({username, mobile, password, nickname}, callback)
 }
@@ -19,6 +24,23 @@ export function login(req, res) {
   const mobile = req.body.username
   function callback (result) {
     res.send(result)
+    return 
   }
   db.queryUser({username, password, mobile}, callback)
+}
+//node.js会把请求头的属性全部识别成小写
+export function getGoodsList(req, res) {
+  let token = req.headers.authorization.split(' ')[1]
+  verifyjwt(token, select.secret, function (obj) {
+    if (!obj.time){
+      res.send({
+        success: false,
+        token: 0,
+        messgae: obj.messgae
+      })
+    }else{
+      let userId = obj.payload.userId
+      db.getGoodsList()
+    }
+  })
 }
