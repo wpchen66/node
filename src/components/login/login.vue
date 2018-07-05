@@ -48,7 +48,7 @@ export default {
               message: res.message
             });
             setLstorage('token', res.token)
-            _this.$router.push('/goodslist')
+            _this.$router.push('/index')
           } else {
             Message.error({
               message: res.message

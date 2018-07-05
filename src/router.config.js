@@ -20,6 +20,11 @@ const GoodsList = (resolve) => {
     resolve(module)
   })
 }
+const Index = (resolve) => {
+  import('com/index/index').then(module => {
+    resolve(module)
+  })
+}
 const router = new VueRouter({
   mode: 'hash',
   linkActiveClass: 'active',
@@ -42,6 +47,11 @@ const router = new VueRouter({
       path: '/goodslist',
       name: 'goodslist',
       component: GoodsList
+    },
+    {
+      path: '/index',
+      name: 'index',
+      component: Index
     }
   ]
 })

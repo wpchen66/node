@@ -4,6 +4,7 @@ import Vue from 'vue'
 import App from './App'
 import router from './router.config.js'
 import axios from 'axios'
+import '../static/css/clearcss.css'
 import {
   getLstorage
 } from './utils/util.js'
@@ -20,7 +21,7 @@ axios.interceptors.request.use(req => {
   } else {
     token = window.btoa("nucleus" + ":" + "nucleus-secret");
     req.headers.Authorization = `Basic ` + token;
-    req.headers['Content-Type'] = 'application/x-www-form-urlencoded';
+    req.headers['Content-Type'] = 'application/json';
   }
   return req
 })

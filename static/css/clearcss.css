@@ -1,0 +1,73 @@
+body,
+div,
+span,
+header,
+footer,
+section,
+aside,
+article,
+ul,
+dl,
+dt,
+dd,
+li,
+a,
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+i,
+b,
+em,
+textarea,
+button,
+input,
+select {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  font-style: normal;
+  text-decoration: none;
+  border: none;
+  font-family: 'Microsoft Yahei', sans-serif;
+}
+body:focus,
+div:focus,
+span:focus,
+header:focus,
+footer:focus,
+section:focus,
+aside:focus,
+article:focus,
+ul:focus,
+dl:focus,
+dt:focus,
+dd:focus,
+li:focus,
+a:focus,
+p:focus,
+h1:focus,
+h2:focus,
+h3:focus,
+h4:focus,
+h5:focus,
+h6:focus,
+i:focus,
+b:focus,
+em:focus,
+textarea:focus,
+button:focus,
+input:focus,
+select:focus {
+  outline: none;
+}
+html,
+body {
+  height: 100%;
+  width: 100%;
+  font-size: 12px;
+  background-color: #fff;
+}

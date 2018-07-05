@@ -113,12 +113,11 @@ export function queryUser(user, callback) {
       console.error(err)
       return
     }
-    console.log(res)
     if (res) {
       let token = jwt.sign({
         userId: res.id
       }, select.secret, {
-        expiresIn: 10
+        expiresIn: 3600
       })
       res.token = token
       res.save(function (err) {
