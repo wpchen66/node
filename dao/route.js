@@ -44,3 +44,6 @@ export function getGoodsList(req, res) {
     }
   })
 }
+export function addGoods (req, res) {
+  console.log(req.body)
+}

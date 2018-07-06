@@ -5,6 +5,7 @@ import App from './App'
 import router from './router.config.js'
 import axios from 'axios'
 import '../static/css/clearcss.css'
+import store from '../store/index.js'
 import {
   getLstorage
 } from './utils/util.js'
@@ -34,4 +35,5 @@ new Vue({
   },
   template: '<App/>',
   router,
+  store
 })
