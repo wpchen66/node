@@ -19,6 +19,7 @@
     "body-parser": "^1.18.3",
     "element-ui": "^2.4.3",
     "express": "^4.16.3",
+    "formidable": "^1.2.1",
     "jsonwebtoken": "^8.3.0",
     "mongoose": "^5.1.7",
     "postcss": "^6.0.23",

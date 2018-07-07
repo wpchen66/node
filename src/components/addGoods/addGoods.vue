@@ -15,12 +15,14 @@
         <el-form-item label="商品数量">
           <el-input class="input-width" v-model="form.number"></el-input>
         </el-form-item>
+        <!--:before-upload="beforeInfo"  -->
          <el-upload
-        action="/api/addGoods"
+         action="string"
         :multiple="true"
-        list-type="picture-card"
-        :auto-upload="false"
+        ref="uploadfile"
         :on-change="changeHandle"
+        :auto-upload="false"
+        list-type="picture-card"
         :limit="limit"
         :file-list="uploadList">
         <i class="el-icon-plus"></i>
@@ -28,7 +30,7 @@
       <el-dialog :visible.sync="dialogVisible">
         <img width="100%" :src="dialogImageUrl" alt="">
       </el-dialog>
-       <el-button type="primary" @click="onSubmit">立即创建</el-button>
+       <el-button type="primary" @click.prevent="onSubmit">立即创建</el-button>
       </el-form>
       <!-- action="https://jsonplaceholder.typicode.com/posts/"   -->
      
@@ -53,35 +55,56 @@ export default {
         price: null,
         number: null
       },
-      dialogVisible:false,
+      upload: {
+        name: ""
+      },
+      dialogVisible: false,
       dialogImageUrl: null,
-      uploadList:[],
+      uploadList: [],
       limit: 6
     };
   },
   methods: {
-    changeHandle: function(file, fileList){
-      this.uploadList = fileList
+    beforeInfo: function(item) {
+      this.upload = new FormData();
+      console.log(item);
+      // this.upload.append(item, item.name);
+      return false;
+    },
+    changeHandle: function (file, fileList) {
+      console.log(file, fileList)
+      let url = file.url
+      let render = new FileReader()
+      console.log(render.readAsBinaryString(url))
     },
     onSubmit: function() {
-      const name = form.name
-      const des = form.des
-      const fileList = this.uploadList
-      const price = form.price
-      const number = form.number
-      this.$http({
-        method: 'POST',
-        url:'/api/addGoods',
-        data: {
-          name,
-          des,
-          price,
-          number,
-          fileList
-        }
-      }).then(res => {
-        console.log(res)
-      })
+      const name = this.form.name;
+      const des = this.form.des;
+      // const fileList = this.uploadList
+      const price = this.form.price;
+      const number = this.form.number;
+      console.log(this.uploadList);
+      // fileList.forEach(function (item, index) {
+      //   const render = new FileReader()
+      //   // item.url = item.url.substr(1,item.url.length-2)
+      //    console.log(typeof item.url)
+      //   const url = render.readAsDataURL(item.url)
+
+      // })
+      // new Promise((resolve, reject) => {
+      //   this.$refs.uploadfile.submit();
+      //   resolve()
+      // }).then(data => {
+      //   this.upload.append("form", this.form);
+      //   console.log(this.upload)
+      //   this.$http({
+      //     method: "POST",
+      //     url: "/api/addGoods",
+      //     data: this.upload
+      //   }).then(res => {
+      //     console.log(res);
+      //   });
+      // });
     }
   }
 };

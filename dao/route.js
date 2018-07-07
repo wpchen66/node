@@ -45,5 +45,8 @@ export function getGoodsList(req, res) {
   })
 }
 export function addGoods (req, res) {
-  console.log(req.body)
+  let callback = function () {
+
+  }
+  db.addGoods(req, req.body, callback)
 }

@@ -7,6 +7,9 @@ import {
 } from 'mongoose';
 import * as select from './config.js';
 import jwt from 'jsonwebtoken';
+const fs = require('fs');
+const formidable = require('formidable');
+const path = require('path')
 export function addUser(user, callback) {
   let {
     username,
@@ -150,5 +153,29 @@ export function getGoodsList () {
   console.log(111)
   goodsModel.find(function(err, res) {
     console.log(res,1)
+  })
+}
+export function addGoods(req, goods, callback){
+  // const name = goods.name;
+  // const price = goods.price;
+  // const des = goods.des;
+  // const number = goods.number;
+  console.log(req.body)
+  const form = new formidable.IncomingForm()
+
+  // const filelist = goods.fileList
+
+  //  filelist.forEach(function(item, index) {
+  //    const render = new FileReader()
+  //    const url = render.readAsArrayBuffer(item.url)
+  //    console.log(url)
+  //  })
+  //  form.uploadDir =imgPath
+  form.parse(req, function (err, files, filelist) {
+    if (err) {
+      console.error(err)
+    }
+    console.log(123)
+    console.log(files, filelist)
   })
 }

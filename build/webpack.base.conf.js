@@ -19,8 +19,7 @@ module.exports = {
     path: config.build.assetsRoot,
     filename: '[name].js',
     publicPath: process.env.NODE_ENV === 'production' ?
-      config.build.assetsPublicPath :
-      config.dev.assetsPublicPath
+      config.build.assetsPublicPath : config.dev.assetsPublicPath
   },
   resolve: {
     extensions: ['.js', '.vue', '.json'],
@@ -42,8 +41,18 @@ module.exports = {
         include: [resolve('src'), resolve('test'), resolve('node_modules/webpack-dev-server/client')]
       },
       {
-        test:/\.less$/,
-        loader:'less-loader'
+        test: /\.less$/,
+        use: [{
+          loader: "style-loader"
+        }, {
+          loader: "css-loader"
+        }, {
+          loader: "less-loader",
+          options: {
+            strictMath: true,
+            noIeCompat: true
+          }
+        }]
       },
       {
         test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
