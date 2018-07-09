@@ -48,5 +48,5 @@ export function addGoods (req, res) {
   let callback = function () {
 
   }
-  db.addGoods(req, req.body, callback)
+  db.addGoods(req, callback)
 }

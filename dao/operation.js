@@ -10,6 +10,8 @@ import jwt from 'jsonwebtoken';
 const fs = require('fs');
 const formidable = require('formidable');
 const path = require('path')
+const uuid = require('uuid/v4')
+const serverUrl = '127.0.0.1:3000'
 export function addUser(user, callback) {
   let {
     username,
@@ -149,33 +151,97 @@ export function queryUser(user, callback) {
     }
   })
 }
-export function getGoodsList () {
+export function getGoodsList() {
   console.log(111)
-  goodsModel.find(function(err, res) {
-    console.log(res,1)
+  goodsModel.find(function (err, res) {
+    console.log(res, 1)
   })
 }
-export function addGoods(req, goods, callback){
-  // const name = goods.name;
-  // const price = goods.price;
-  // const des = goods.des;
-  // const number = goods.number;
-  console.log(req.body)
+export function addGoods(req, callback) {
+  let goods = {}
+  const date = new Date()
   const form = new formidable.IncomingForm()
-
-  // const filelist = goods.fileList
-
-  //  filelist.forEach(function(item, index) {
-  //    const render = new FileReader()
-  //    const url = render.readAsArrayBuffer(item.url)
-  //    console.log(url)
-  //  })
-  //  form.uploadDir =imgPath
-  form.parse(req, function (err, files, filelist) {
+  let imgPath = path.resolve('static/images/'+date.getFullYear()+'/'+(date.getMonth()+1)+'/'+date.getDate())
+  let imgList = []
+  fs.exists(path.resolve('static/images/'+date.getFullYear()), function (exists) {
+    if(!exists){
+      fs.mkdir(path.resolve('static/images/'+date.getFullYear()), function (err, data) {
+        if(err)
+        {
+          console.error(err)
+        }
+        console.log('年目录创建成功')
+      })
+    }
+  })
+  fs.exists(path.resolve('static/images/'+date.getFullYear()+'/'+(date.getMonth()+1)), function (exists) {
+    if(!exists){
+      fs.mkdir(path.resolve('static/images/'+date.getFullYear()+'/'+(date.getMonth()+1)), function (err, data) {
+        if(err)
+        {
+          console.error(err)
+        }
+        console.log('月目录创建成功')
+      })
+    }
+  })
+  fs.exists(path.resolve('static/images/'+date.getFullYear()+'/'+(date.getMonth()+1)+'/'+date.getDate()), function (exists) {
+    if(!exists){
+      fs.mkdir(path.resolve('static/images/'+date.getFullYear()+'/'+(date.getMonth()+1)+'/'+date.getDate()), function (err, data) {
+        if(err)
+        {
+          console.error(err)
+        }
+        console.log('日目录创建成功')
+      })
+    }
+  })
+  // form.uploadDir = imgPath
+  form.parse(req, function (err, fields, files) {
     if (err) {
       console.error(err)
     }
-    console.log(123)
-    console.log(files, filelist)
+
+    goods = JSON.parse(fields.form)
+    Object.values(files).forEach(function (item, index) {
+      console.log(item)
+      fs.readFile(item.path, function (err, data) {
+        if (err) {
+          console.error(err)
+          return
+        }
+        const id = uuid()
+        let type = item.type.split('/')[1]
+        console.log(id,type)
+        fs.writeFile(imgPath + '/' +id+'.'+type, data, function (err, data) {
+          if (err) {
+            console.error(err)
+          }
+          const imgUrl = serverUrl+'/static/images/'+date.getFullYear()+'/'+(date.getMonth()+1)+'/'+date.getDate()+'/' +id+'.'+type
+          imgList.push(imgUrl)
+        })
+      })
+    })
+    const goodsInfo = new goodsModel({
+      name: goods.name,
+      des: goods.des,
+      price: goods.price,
+      number: goods.number,
+      pic:  imgList
+    })
+    goodsInfo.save(function(err, data){
+      if(err) {
+        console.log(err)
+        return
+      }
+      console.log(data, '商品保存成功')
+    })
+    // console.log(files)
+    // let b = JSON.parse(files.upload)
+    // console.log(typeof files)
+    // files.upload.forEach((item, index)=> {
+    //   console.log(item)
+    // })
+    
   })
 }

@@ -34,7 +34,7 @@ let goodsSchema = new mogoose.Schema({
   number: {type: Number, default: 0},
   price: {type: Number, default: 0},
   des: {type: String},
-  url: {type: String}
+  pic: {type: [String, Array]}
 })
 
 export const userModel = mogoose.model('userInfo', userSchema)

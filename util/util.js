@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken')
+const path = require('path')
 export function verifyjwt (token,code ,callback) {
   jwt.verify(token,code ,function (err, success) {
       if(err) {
