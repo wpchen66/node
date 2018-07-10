@@ -161,35 +161,32 @@ export function addGoods(req, callback) {
   let goods = {}
   const date = new Date()
   const form = new formidable.IncomingForm()
-  let imgPath = path.resolve('static/images/'+date.getFullYear()+'/'+(date.getMonth()+1)+'/'+date.getDate())
+  let imgPath = path.resolve('static/images/' + date.getFullYear() + '/' + (date.getMonth() + 1) + '/' + date.getDate())
   let imgList = []
-  fs.exists(path.resolve('static/images/'+date.getFullYear()), function (exists) {
-    if(!exists){
-      fs.mkdir(path.resolve('static/images/'+date.getFullYear()), function (err, data) {
-        if(err)
-        {
+  fs.exists(path.resolve('static/images/' + date.getFullYear()), function (exists) {
+    if (!exists) {
+      fs.mkdir(path.resolve('static/images/' + date.getFullYear()), function (err, data) {
+        if (err) {
           console.error(err)
         }
         console.log('年目录创建成功')
       })
     }
   })
-  fs.exists(path.resolve('static/images/'+date.getFullYear()+'/'+(date.getMonth()+1)), function (exists) {
-    if(!exists){
-      fs.mkdir(path.resolve('static/images/'+date.getFullYear()+'/'+(date.getMonth()+1)), function (err, data) {
-        if(err)
-        {
+  fs.exists(path.resolve('static/images/' + date.getFullYear() + '/' + (date.getMonth() + 1)), function (exists) {
+    if (!exists) {
+      fs.mkdir(path.resolve('static/images/' + date.getFullYear() + '/' + (date.getMonth() + 1)), function (err, data) {
+        if (err) {
           console.error(err)
         }
         console.log('月目录创建成功')
       })
     }
   })
-  fs.exists(path.resolve('static/images/'+date.getFullYear()+'/'+(date.getMonth()+1)+'/'+date.getDate()), function (exists) {
-    if(!exists){
-      fs.mkdir(path.resolve('static/images/'+date.getFullYear()+'/'+(date.getMonth()+1)+'/'+date.getDate()), function (err, data) {
-        if(err)
-        {
+  fs.exists(path.resolve('static/images/' + date.getFullYear() + '/' + (date.getMonth() + 1) + '/' + date.getDate()), function (exists) {
+    if (!exists) {
+      fs.mkdir(path.resolve('static/images/' + date.getFullYear() + '/' + (date.getMonth() + 1) + '/' + date.getDate()), function (err, data) {
+        if (err) {
           console.error(err)
         }
         console.log('日目录创建成功')
@@ -204,7 +201,7 @@ export function addGoods(req, callback) {
 
     goods = JSON.parse(fields.form)
     Object.values(files).forEach(function (item, index) {
-      console.log(item)
+      // console.log(item)
       fs.readFile(item.path, function (err, data) {
         if (err) {
           console.error(err)
@@ -212,36 +209,41 @@ export function addGoods(req, callback) {
         }
         const id = uuid()
         let type = item.type.split('/')[1]
-        console.log(id,type)
-        fs.writeFile(imgPath + '/' +id+'.'+type, data, function (err, data) {
+        console.log(id, type)
+        fs.writeFile(imgPath + '/' + id + '.' + type, data, function (err, data) {
           if (err) {
             console.error(err)
           }
-          const imgUrl = serverUrl+'/static/images/'+date.getFullYear()+'/'+(date.getMonth()+1)+'/'+date.getDate()+'/' +id+'.'+type
+          const imgUrl = serverUrl + '/static/images/' + date.getFullYear() + '/' + (date.getMonth() + 1) + '/' + date.getDate() + '/' + id + '.' + type
           imgList.push(imgUrl)
+          console.log(imgList)
+          if (index === Object.values(files).length - 1) {
+            console.log(imgList, index, Object.values(files).length - 1)
+            const goodsInfo = new goodsModel({
+              name: goods.name,
+              des: goods.des,
+              price: goods.price,
+              number: goods.number,
+              pic: imgList
+            })
+            goodsInfo.save(function (err, data) {
+              if (err) {
+                console.log(err)
+                return
+              }
+              console.log(data, '商品保存成功')
+            })
+          }
         })
       })
     })
-    const goodsInfo = new goodsModel({
-      name: goods.name,
-      des: goods.des,
-      price: goods.price,
-      number: goods.number,
-      pic:  imgList
-    })
-    goodsInfo.save(function(err, data){
-      if(err) {
-        console.log(err)
-        return
-      }
-      console.log(data, '商品保存成功')
-    })
+
     // console.log(files)
     // let b = JSON.parse(files.upload)
     // console.log(typeof files)
     // files.upload.forEach((item, index)=> {
     //   console.log(item)
     // })
-    
+
   })
 }
