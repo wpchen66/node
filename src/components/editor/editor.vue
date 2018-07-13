@@ -1,7 +1,7 @@
 
 <template>
   <div>
-    <editor :id='id' v-model="tinymceHtml" :init="editorInit"></editor>  
+    <editor :id='id' @input="setContent"  v-model="tinymceHtml" :init="editorInit"></editor>  
   </div>
 </template>
 <script>
@@ -16,12 +16,27 @@ import tinymce from "tinymce/tinymce";
 import "tinymce/themes/modern/theme";
 import "tinymce/plugins/paste";
 import "tinymce/plugins/link";
+import "tinymce/plugins/image";
+import 'tinymce/plugins/imagetools';
+import 'tinymce/plugins/media'
+import 'tinymce/plugins/codesample'
+import 'tinymce/plugins/textcolor'
+import 'tinymce/plugins/colorpicker'
+import 'tinymce/plugins/importcss'
+import 'tinymce/plugins/emoticons'
+import 'tinymce/plugins/print'
+import 'tinymce/plugins/code'
+import 'tinymce/plugins/insertdatetime'
+import 'tinymce/plugins/searchreplace'
 import Editor from "@tinymce/tinymce-vue";
 
 export default {
   props: {
     setting: {
       type: Object
+    },
+    getContent: {
+      type: Function
     }
   },
   data() {
@@ -35,9 +50,7 @@ export default {
         skin_url: "/static/skins/lightgray",
         theme: "modern",
         width: 600,
-        height: 300,
-        tools: "image",
-        plugins: "image"
+        height: 300
       }
     };
   },
@@ -49,6 +62,12 @@ export default {
   },
   mounted: function() {
     tinymce.init({});
+  },
+  methods:{
+    setContent: function () {
+     let a = tinymce.activeEditor.getContent()
+     this.getContent(a)
+    }
   },
   components: {
     Editor

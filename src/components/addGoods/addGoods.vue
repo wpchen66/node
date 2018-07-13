@@ -2,9 +2,9 @@
   <div id="addGoods">
     <h2>添加商品</h2>
     <div>
-      <el-form ref="form" :model="form"  label-width="80px">
+      <el-form ref="form" :model="form"  label-width="120px">
         <el-form-item label="商品名称">
-          <el-input class="input-width" type="text" v-model="form.name"></el-input>
+          <el-input class="input-width"  v-model="form.name"></el-input>
         </el-form-item>
         <el-form-item  label="商品描述">
           <el-input class="input-width" type="textarea" v-model="form.des"></el-input>
@@ -16,7 +16,9 @@
           <el-input class="input-width" v-model="form.number"></el-input>
         </el-form-item>
         <!--  -->
+        <el-form-item  label="添加商品图片"></el-form-item>
          <el-upload
+         class="upload"
          action="string"
         :multiple="true"
         ref="uploadfile"
@@ -32,9 +34,10 @@
         <img width="100%" :src="dialogImageUrl" alt="">
       </el-dialog>
         <!-- 加载编辑器的容器 -->
-      <editor :setting="editorSetting" class="editor">
+        <el-form-item class="detail-lab" label="添加商品详情" size="100"></el-form-item>
+      <editor :getContent="getContent" :setting="editorSetting" class="editor">
       </editor>  
-       <el-button type="primary" @click.prevent="onSubmit">立即创建</el-button>
+       <el-button class="submit" type="primary" @click.prevent="onSubmit">立即创建</el-button>
       </el-form>
     </div>
   </div>
@@ -71,13 +74,31 @@ export default {
       editorSetting: {
         width: 1200,
         height: 500,
-        plugins: "media mediaembed emoticons",
-        toolbar:"emoticons | forecolor backcolor | paste | insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | print preview media fullpage | forecolor backcolor emoticons",
-        paste_data_images: true,
-         mediaembed_max_width: 450
-        // color_picker_callback: function(callback, value) {
-        //   callback("#FF00FF");
-        // }
+        toolbar: [
+          "newdocument bold italic underline strikethrough alignleft aligncenter alignright alignjustify styleselect formatselect fontselect fontsizeselect cut copy paste bullist numlist outdent indent blockquote undo redo removeformat subscript superscript",
+          "image media codesample forecolor backcolor link emoticons print code insertdatetime searchreplace"
+        ],
+        plugins:
+          "image imagetools media  codesample textcolor colorpicker link importcss emoticons code insertdatetime searchreplace",
+        codesample_content_css: '/plugins/codesample/css/prism.css',
+        imagetools_cors_hosts: ["www.tinymce.com.com", "codepen.io"],
+        images_upload_url: "/api/addGoods",
+        file_picker_callback: function(callback, value, meta) {
+          // Provide file and text for the link dialog
+          if (meta.filetype == "file") {
+            callback("mypage.html", { text: "My text" });
+          }
+
+          // Provide image and alt text for the image dialog
+          if (meta.filetype == "image") {
+            callback("myimage.jpg", { alt: "My alt text" });
+          }
+
+          // Provide alternative source and posted for the media dialog
+          if (meta.filetype == "media") {
+            callback("movie.mp4", { source2: "alt.ogg", poster: "image.jpg" });
+          }
+        }
       }
     };
   },
@@ -100,7 +121,7 @@ export default {
       const des = this.form.des;
       const price = this.form.price;
       const number = this.form.number;
-      console.log(this.uploadList);
+      console.log(name, des, price, number);
       this.upload = new FormData();
       new Promise((resolve, reject) => {
         this.$refs.uploadfile.submit();
@@ -118,15 +139,51 @@ export default {
           this.index = 0;
         });
       });
+    },
+    getContent: function (content){
+        return content
     }
   },
   components: {
     Editor
   }
 };
+// plugins: "image imagetools codesample media mediaembed emoticons",
+//         toolbar:
+//           "image | codesample | emoticons | forecolor backcolor | paste | insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | print preview media fullpage | forecolor backcolor emoticons",
+//         // external_plugins: {
+//         //   powerpaste:
+//         //     "http://www.server.com/application/external_plugins/powerpaste/plugin.js"
+//         // },
+//         codesample_languages: [
+//           { text: "HTML/XML", value: "markup" },
+//           { text: "JavaScript", value: "javascript" },
+//           { text: "CSS", value: "css" },
+//           { text: "PHP", value: "php" },
+//           { text: "Ruby", value: "ruby" },
+//           { text: "Python", value: "python" },
+//           { text: "Java", value: "java" },
+//           { text: "C", value: "c" },
+//           { text: "C#", value: "csharp" },
+//           { text: "C++", value: "cpp" }
+//         ],
+//         paste_data_images: true,
+//         mediaembed_max_width: 450
+//         // color_picker_callback: function(callback, value) {
+//         //   callback("#FF00FF");
+//         // }
 </script>
 <style lang="less">
 .input-width {
   width: 300px;
+}
+.detail-lab{
+  margin-top: 20px;
+}
+.upload{
+  padding-left: 120px;
+}
+.submit{
+  margin: 20px auto;
 }
 </style>

@@ -151,12 +151,6 @@ export function queryUser(user, callback) {
     }
   })
 }
-export function getGoodsList() {
-  console.log(111)
-  goodsModel.find(function (err, res) {
-    console.log(res, 1)
-  })
-}
 export function addGoods(req, callback) {
   let goods = {}
   const date = new Date()
@@ -198,8 +192,8 @@ export function addGoods(req, callback) {
     if (err) {
       console.error(err)
     }
-
     goods = JSON.parse(fields.form)
+    console.log(fields, goods)
     Object.values(files).forEach(function (item, index) {
       // console.log(item)
       fs.readFile(item.path, function (err, data) {
@@ -245,5 +239,14 @@ export function addGoods(req, callback) {
     //   console.log(item)
     // })
 
+  })
+}
+export function getGoodsList(callback) {
+  goodsModel.find(function (err, res) {
+    let obj = {
+      success: true,
+      data: res
+    }
+    callback(obj)
   })
 }

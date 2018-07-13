@@ -32,7 +32,8 @@ export function login(req, res) {
 export function getGoodsList(req, res) {
   let token = req.headers.authorization.split(' ')[1]
   verifyjwt(token, select.secret, function (obj) {
-    if (!obj.time){
+    console.log(obj)
+    if (obj.time){
       res.send({
         success: false,
         token: 0,
@@ -40,7 +41,10 @@ export function getGoodsList(req, res) {
       })
     }else{
       let userId = obj.payload.userId
-      db.getGoodsList()
+      function callback (data) {
+        res.send(data)
+      }
+      db.getGoodsList(callback)
     }
   })
 }

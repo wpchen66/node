@@ -51,7 +51,14 @@ const router = new VueRouter({
     {
       path: '/index',
       name: 'index',
-      component: Index
+      component: Index,
+      children: [
+        {
+          path: 'goodslist',
+          name: 'goodslist',
+          component: GoodsList
+        }
+      ]
     }
   ]
 })

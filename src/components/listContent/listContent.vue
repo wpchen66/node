@@ -1,8 +1,8 @@
 <template>
   <div id="listContent">
-    <el-button type="primary">添加商品</el-button>
+    <el-button @click="addHandle" type="primary">添加商品</el-button>
     <goods-list></goods-list>
-    <add-goods></add-goods>
+    <add-goods v-if="addShow"></add-goods>
   </div>
 </template>
 <script>
@@ -14,7 +14,12 @@ Vue.use(Button)
 export default {
   data () {
     return {
-
+      addShow: false
+    }
+  },
+  methods: {
+    addHandle: function () {
+      this.addShow = true
     }
   },
   components: {

@@ -5,7 +5,7 @@ export function verifyjwt (token,code ,callback) {
       if(err) {
         
         let obj = {
-          time: false,
+          time: true,
           message: 'token超时'
         }
         callback(obj)
