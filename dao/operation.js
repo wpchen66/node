@@ -193,7 +193,6 @@ export function addGoods(req, callback) {
       console.error(err)
     }
     goods = JSON.parse(fields.form)
-    console.log(fields, goods)
     Object.values(files).forEach(function (item, index) {
       // console.log(item)
       fs.readFile(item.path, function (err, data) {
@@ -251,5 +250,15 @@ export function getGoodsList(callback) {
       data: res
     }
     callback(obj)
+  })
+}
+export function updataGoods(req,callback) {
+  console.log(req.bod)
+  const form = new formidable.IncomingForm()
+  form.parse(req, function (err, fields, files) {
+    if(err){
+      console.error(err)
+    }
+    console.log(req, fields, files)
   })
 }

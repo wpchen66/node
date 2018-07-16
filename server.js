@@ -13,7 +13,7 @@ db.once('open', function () {
 })
 app.set('views', './views')
 // app.use(express.static("views"));
-app.use(express.static("static"));
+app.use('/static',express.static("static"));
 // app.use(express.static('public'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({

@@ -54,3 +54,10 @@ export function addGoods (req, res) {
   }
   db.addGoods(req, callback)
 }
+export function updataGoods(req, res){
+  console.log(req.body)
+  let callback =  () => {
+
+  }
+  db.updataGoods(req,callback)
+}

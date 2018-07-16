@@ -55,7 +55,7 @@ Vue.use(Dialog);
 import Editor from "com/editor/editor";
 export default {
   props: {
-    setAdd:{
+    setAdd: {
       type: Function
     }
   },
@@ -65,7 +65,8 @@ export default {
         name: "",
         des: "",
         price: null,
-        number: null
+        number: null,
+        id: null
       },
       upload: {
         name: ""
@@ -85,7 +86,7 @@ export default {
         ],
         plugins:
           "image imagetools media  codesample textcolor colorpicker link importcss emoticons code insertdatetime searchreplace",
-        codesample_content_css: '/plugins/codesample/css/prism.css',
+        codesample_content_css: "/plugins/codesample/css/prism.css",
         imagetools_cors_hosts: ["www.tinymce.com.com", "codepen.io"],
         images_upload_url: "/api/addGoods",
         file_picker_callback: function(callback, value, meta) {
@@ -107,28 +108,31 @@ export default {
       }
     };
   },
-   created(){
-      console.log(this.$store.state.goodsInfo)
-      const goodsInfo = this.$store.state.goodsInfo
-      if(goodsInfo){
-        this.form.name = goodsInfo.name;
-        this.form.des = goodsInfo.des;
-        this.form.price = goodsInfo.price;
-        this.form.number = goodsInfo.number
-        goodsInfo.pic.forEach((item, index) => {
-          let obj ={}
-          obj['url'] = item
-          this.uploadList.push(obj)
-        })
-      }
-    },
+  created() {
+    console.log(this.$store.state.goodsInfo);
+    const goodsInfo = this.$store.state.goodsInfo;
+    if (goodsInfo) {
+      this.form.name = goodsInfo.name;
+      this.form.des = goodsInfo.des;
+      this.form.price = goodsInfo.price;
+      this.form.number = goodsInfo.number;
+      this.form.id = goodsInfo._id;
+      goodsInfo.pic.forEach((item, index) => {
+        let obj = {};
+       const diot=  item.substring(item.lastIndexOf('.'))
+        obj["name"] = `index${diot}`
+        item = `http://${item}`
+        console.log(item.match(/^(http:\/\/)|(https:\/\/)/))
+        obj["url"] = item;
+        this.uploadList.push(obj);
+      });
+    }
+  },
   methods: {
     changeHandle: function(file, filelist) {
       this.uploadList = filelist;
     },
     beforeInfo: function(item) {
-      console.log(this.index);
-      console.log(item, 123132);
       this.upload.append(this.index, item);
       this.index++;
       return false;
@@ -138,28 +142,48 @@ export default {
       const des = this.form.des;
       const price = this.form.price;
       const number = this.form.number;
-      console.log(name, des, price, number);
-      this.upload = new FormData();
-      new Promise((resolve, reject) => {
-        this.$refs.uploadfile.submit();
-        resolve();
-      }).then(data => {
-        this.from = JSON.stringify(this.form);
-        this.upload.append("form", this.from);
-        console.log(this.upload);
-        this.$http({
-          method: "POST",
-          url: "/api/addGoods",
-          data: this.upload
-        }).then(res => {
-          console.log(res);
-          this.index = 0;
+      const id = this.form.id;
+      if (!id) {
+        this.upload = new FormData();
+        new Promise((resolve, reject) => {
+          this.$refs.uploadfile.submit();
+          resolve();
+        }).then(data => {
+          this.from = JSON.stringify(this.form);
+          this.upload.append("form", this.from);
+          console.log(this.upload);
+          this.$http({
+            method: "POST",
+            url: "/api/addGoods",
+            data: this.upload
+          }).then(res => {
+            console.log(res);
+            this.index = 0;
+          });
         });
-      });
-      this.setAdd(false)
+      }else{
+        this.upload = new FormData();
+        new Promise((resolve, reject) => {
+          this.$refs.uploadfile.submit();
+          resolve();
+        }).then(data => {
+          this.from = JSON.stringify(this.form);
+          this.upload.append("form", this.from);
+          console.log(this.upload);
+          this.$http({
+            method: "POST",
+            url: "/api/updataGoods",
+            data: this.upload
+          }).then(res => {
+            console.log(res);
+            this.index = 0;
+          });
+        });
+      }
+      this.setAdd(false);
     },
-    getContent: function (content){
-        return content
+    getContent: function(content) {
+      return content;
     }
   },
   components: {
@@ -195,13 +219,13 @@ export default {
 .input-width {
   width: 300px;
 }
-.detail-lab{
+.detail-lab {
   margin-top: 20px;
 }
-.upload{
+.upload {
   padding-left: 120px;
 }
-.submit{
+.submit {
   margin: 20px auto;
 }
 </style>
