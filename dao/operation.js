@@ -203,23 +203,26 @@ export function addGoods(req, callback) {
         }
         const id = uuid()
         let type = item.type.split('/')[1]
-        console.log(id, type)
         fs.writeFile(imgPath + '/' + id + '.' + type, data, function (err, data) {
           if (err) {
             console.error(err)
           }
           const imgUrl = serverUrl + '/static/images/' + date.getFullYear() + '/' + (date.getMonth() + 1) + '/' + date.getDate() + '/' + id + '.' + type
           imgList.push(imgUrl)
-          console.log(imgList)
           if (index === Object.values(files).length - 1) {
-            console.log(imgList, index, Object.values(files).length - 1)
+            const date = new Date()
+            const year = `${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}`
+            const time = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
             const goodsInfo = new goodsModel({
+              time: time,
+              date: year,
               name: goods.name,
               des: goods.des,
               price: goods.price,
               number: goods.number,
               pic: imgList
             })
+          
             goodsInfo.save(function (err, data) {
               if (err) {
                 console.log(err)

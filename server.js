@@ -13,7 +13,8 @@ db.once('open', function () {
 })
 app.set('views', './views')
 // app.use(express.static("views"));
-app.use(express.static('public'));
+app.use(express.static("static"));
+// app.use(express.static('public'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
   extended: false
@@ -25,7 +26,7 @@ app.use(bodyParser.urlencoded({
 //   res.setHeader( 'X-Requested-With,content-type, Authorization');
 //   next();
 // });
-app.use(express.static('views'));
+// app.use(express.static('views'))
 app.use('/', router)
 let server = app.listen(3000, function () {
   console.log('server alreay start')

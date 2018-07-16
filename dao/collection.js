@@ -30,6 +30,8 @@ let userSchema = new mogoose.Schema({
 // }
 
 let goodsSchema = new mogoose.Schema({
+  date: {type: String},
+  time: {type: String},
   name: {type: String},
   number: {type: Number, default: 0},
   price: {type: Number, default: 0},

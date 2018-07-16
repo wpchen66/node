@@ -54,6 +54,11 @@ Vue.use(Dialog);
 
 import Editor from "com/editor/editor";
 export default {
+  props: {
+    setAdd:{
+      type: Function
+    }
+  },
   data() {
     return {
       form: {
@@ -102,17 +107,29 @@ export default {
       }
     };
   },
+   created(){
+      console.log(this.$store.state.goodsInfo)
+      const goodsInfo = this.$store.state.goodsInfo
+      if(goodsInfo){
+        this.form.name = goodsInfo.name;
+        this.form.des = goodsInfo.des;
+        this.form.price = goodsInfo.price;
+        this.form.number = goodsInfo.number
+        goodsInfo.pic.forEach((item, index) => {
+          let obj ={}
+          obj['url'] = item
+          this.uploadList.push(obj)
+        })
+      }
+    },
   methods: {
     changeHandle: function(file, filelist) {
       this.uploadList = filelist;
     },
     beforeInfo: function(item) {
       console.log(this.index);
-      // console.log(item);
-      // })
       console.log(item, 123132);
       this.upload.append(this.index, item);
-      // this.list[this.index] = item
       this.index++;
       return false;
     },
@@ -139,6 +156,7 @@ export default {
           this.index = 0;
         });
       });
+      this.setAdd(false)
     },
     getContent: function (content){
         return content
