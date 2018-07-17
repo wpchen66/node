@@ -26,6 +26,7 @@
         :on-change="changeHandle"
         :auto-upload="false"
         list-type="picture-card"
+        :on-remove="removeImg"
         :limit="limit"
         :file-list="uploadList">
         <i class="el-icon-plus"></i>
@@ -74,6 +75,7 @@ export default {
       dialogVisible: false,
       dialogImageUrl: null,
       uploadList: [],
+      removeList: [],
       list: {},
       limit: 6,
       index: 0,
@@ -119,16 +121,21 @@ export default {
       this.form.id = goodsInfo._id;
       goodsInfo.pic.forEach((item, index) => {
         let obj = {};
-       const diot=  item.substring(item.lastIndexOf('.'))
-        obj["name"] = `index${diot}`
-        item = `http://${item}`
-        console.log(item.match(/^(http:\/\/)|(https:\/\/)/))
+        const diot = item.substring(item.lastIndexOf("."));
+        obj["name"] = `index${diot}`;
+        if (!/^(http:\/\/)|(https:\/\/)/.exec(item)) {
+          item = `http://${item}`;
+        }
         obj["url"] = item;
         this.uploadList.push(obj);
       });
     }
   },
   methods: {
+    removeImg: function(file, files) {
+      this.removeList.push(file["url"]);
+      console.log(this.removeList, 22222);
+    },
     changeHandle: function(file, filelist) {
       this.uploadList = filelist;
     },
@@ -143,6 +150,9 @@ export default {
       const price = this.form.price;
       const number = this.form.number;
       const id = this.form.id;
+      if (this.removeList.length) {
+       this.form.removeList = Object.assign([], this.removeList)
+      }
       if (!id) {
         this.upload = new FormData();
         new Promise((resolve, reject) => {
@@ -160,13 +170,15 @@ export default {
             console.log(res);
             this.index = 0;
           });
+          this.setAdd(false);
         });
-      }else{
+      } else {
         this.upload = new FormData();
         new Promise((resolve, reject) => {
           this.$refs.uploadfile.submit();
           resolve();
         }).then(data => {
+          console.log(this.removeList, 11111111);
           this.from = JSON.stringify(this.form);
           this.upload.append("form", this.from);
           console.log(this.upload);
@@ -178,9 +190,9 @@ export default {
             console.log(res);
             this.index = 0;
           });
+          this.setAdd(false);
         });
       }
-      this.setAdd(false);
     },
     getContent: function(content) {
       return content;

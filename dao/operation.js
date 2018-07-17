@@ -7,11 +7,14 @@ import {
 } from 'mongoose';
 import * as select from './config.js';
 import jwt from 'jsonwebtoken';
+import {createDir} from '../util/util.js'
 const fs = require('fs');
 const formidable = require('formidable');
 const path = require('path')
 const uuid = require('uuid/v4')
 const serverUrl = '127.0.0.1:3000'
+
+
 export function addUser(user, callback) {
   let {
     username,
@@ -157,36 +160,7 @@ export function addGoods(req, callback) {
   const form = new formidable.IncomingForm()
   let imgPath = path.resolve('static/images/' + date.getFullYear() + '/' + (date.getMonth() + 1) + '/' + date.getDate())
   let imgList = []
-  fs.exists(path.resolve('static/images/' + date.getFullYear()), function (exists) {
-    if (!exists) {
-      fs.mkdir(path.resolve('static/images/' + date.getFullYear()), function (err, data) {
-        if (err) {
-          console.error(err)
-        }
-        console.log('年目录创建成功')
-      })
-    }
-  })
-  fs.exists(path.resolve('static/images/' + date.getFullYear() + '/' + (date.getMonth() + 1)), function (exists) {
-    if (!exists) {
-      fs.mkdir(path.resolve('static/images/' + date.getFullYear() + '/' + (date.getMonth() + 1)), function (err, data) {
-        if (err) {
-          console.error(err)
-        }
-        console.log('月目录创建成功')
-      })
-    }
-  })
-  fs.exists(path.resolve('static/images/' + date.getFullYear() + '/' + (date.getMonth() + 1) + '/' + date.getDate()), function (exists) {
-    if (!exists) {
-      fs.mkdir(path.resolve('static/images/' + date.getFullYear() + '/' + (date.getMonth() + 1) + '/' + date.getDate()), function (err, data) {
-        if (err) {
-          console.error(err)
-        }
-        console.log('日目录创建成功')
-      })
-    }
-  })
+  createDir()
   // form.uploadDir = imgPath
   form.parse(req, function (err, fields, files) {
     if (err) {
@@ -206,7 +180,7 @@ export function addGoods(req, callback) {
           if (err) {
             console.error(err)
           }
-          const imgUrl = serverUrl + '/static/images/' + date.getFullYear() + '/' + (date.getMonth() + 1) + '/' + date.getDate() + '/' + id + '.' + type
+          const imgUrl = 'http://'+serverUrl + '/static/images/' + date.getFullYear() + '/' + (date.getMonth() + 1) + '/' + date.getDate() + '/' + id + '.' + type
           imgList.push(imgUrl)
           if (index === Object.values(files).length - 1) {
             const date = new Date()
@@ -253,12 +227,41 @@ export function getGoodsList(callback) {
   })
 }
 export function updataGoods(req,callback) {
-  console.log(req.bod)
   const form = new formidable.IncomingForm()
   form.parse(req, function (err, fields, files) {
     if(err){
       console.error(err)
     }
-    console.log(req, fields, files)
+    const goodsInfo = JSON.parse(fields.form)
+    const id = goodsInfo.id;
+    const name = goodsInfo.name;
+    const des = goodsInfo.des;
+    const price = goodsInfo.price;
+    const number = goodsInfo.number
+    goodsModel.findOne({_id: id},function(err, data){
+      if(err){
+        console.error(err)
+      }
+      console.log(data, 1231223)
+      let arr = []
+      data['pic'].forEach(function(item, index){
+        if(!goodsInfo.removeList.indexOf(item)){
+          arr.push(item)
+        }
+      })
+      data.name = name
+      data.price = price
+      data.des = des 
+      data.number = number
+      data.pic = arr
+      createDir()
+      
+      data.save(function(err, data){
+        if(err){
+          console.error(err)
+        }
+        console.log(data, '商品更新成功')
+      })
+    })
   })
 }
