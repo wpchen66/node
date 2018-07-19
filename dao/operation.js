@@ -160,7 +160,7 @@ export function addGoods(req, callback) {
   const form = new formidable.IncomingForm()
   let imgPath = path.resolve('static/images/' + date.getFullYear() + '/' + (date.getMonth() + 1) + '/' + date.getDate())
   let imgList = []
-  createDir()
+  createDir(date)
   // form.uploadDir = imgPath
   form.parse(req, function (err, fields, files) {
     if (err) {
@@ -238,30 +238,63 @@ export function updataGoods(req,callback) {
     const des = goodsInfo.des;
     const price = goodsInfo.price;
     const number = goodsInfo.number
-    goodsModel.findOne({_id: id},function(err, data){
+    goodsModel.findOne({_id: id},function(err, res){
       if(err){
         console.error(err)
       }
-      console.log(data, 1231223)
+      console.log(res, 1231223)
       let arr = []
-      data['pic'].forEach(function(item, index){
+      res['pic'].forEach(function(item, index){
         if(!goodsInfo.removeList.indexOf(item)){
           arr.push(item)
         }
       })
-      data.name = name
-      data.price = price
-      data.des = des 
-      data.number = number
-      data.pic = arr
-      createDir()
-      
-      data.save(function(err, data){
-        if(err){
-          console.error(err)
-        }
-        console.log(data, '商品更新成功')
+      let date = new Date()
+      let imgPath = path.resolve('static/images/' + date.getFullYear() + '/' + (date.getMonth() + 1) + '/' + date.getDate())
+      let imgList = []
+      createDir(date)
+      Object.values(files).forEach(function (item, index) {
+        // console.log(item)
+        fs.readFile(item.path, function (err, data) {
+          if (err) {
+            console.error(err)
+            return
+          }
+          const id = uuid()
+          let type = item.type.split('/')[1]
+          fs.writeFile(imgPath + '/' + id + '.' + type, data, function (err, data) {
+            if (err) {
+              console.error(err)
+            }
+            const imgUrl = 'http://'+serverUrl + '/static/images/' + date.getFullYear() + '/' + (date.getMonth() + 1) + '/' + date.getDate() + '/' + id + '.' + type
+            imgList.push(imgUrl)
+            if (index === Object.values(files).length - 1) {
+              const date = new Date()
+              const year = `${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}`
+              const time = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
+              res.name = name
+              res.price = price
+              res.des = des 
+              res.number = number
+              arr = [...arr,...imgList]
+              res.pic = arr
+              res.save(function (err, data) {
+                if (err) {
+                  console.log(err)
+                  return
+                }
+                console.log(data, '商品更新成功')
+              })
+            }
+          })
+        })
       })
+      // data.save(function(err, data){
+      //   if(err){
+      //     console.error(err)
+      //   }
+      //   console.log(data, '商品更新成功')
+      // })
     })
   })
 }
