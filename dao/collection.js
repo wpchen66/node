@@ -1,5 +1,4 @@
 let mogoose = require('mongoose')
-const bcrypt = require('bcrypt');
 let userSchema = new mogoose.Schema({
   username: [String, Number],
   token: String,

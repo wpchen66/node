@@ -20,7 +20,7 @@ export function verifyjwt(token, code, callback) {
     return
   })
 }
-export function createDir() {
+export function createDir(date) {
   fs.exists(path.resolve('static/images/' + date.getFullYear()), function (exists) {
     if (!exists) {
       fs.mkdir(path.resolve('static/images/' + date.getFullYear()), function (err, data) {

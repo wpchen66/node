@@ -1,7 +1,6 @@
 // const Vue = require('vue');
 import Vue from 'vue'
 import VueRouter from 'vue-router';
-// import { resolve } from 'path';
 Vue.use(VueRouter)
 
 
