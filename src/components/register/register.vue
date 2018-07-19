@@ -30,7 +30,7 @@
           <el-input type="password" auto-complete="off" v-model.trim="registerForm.password" placeholder="请输入密码"></el-input>
         </el-form-item>
         <div class="cz">
-          <el-button type="primary" @click.prevent="login">提交</el-button>
+          <el-button type="primary" @click.prevent="login">登录</el-button>
           <el-button type="primary"  @click.prevent="reg">注册</el-button>
         </div>
       </el-form> 
@@ -38,95 +38,133 @@
   </div>
 </template>
 <script>
-import axios from 'axios'
-import Vue from 'vue'
+import axios from "axios";
+import Vue from "vue";
 import { Message, Loading, Form, Input, FormItem, Button } from "element-ui";
 Vue.use(Form);
 Vue.use(Input);
 Vue.use(FormItem);
 Vue.use(Button);
 export default {
-  data(){
+  data() {
     return {
       registerForm: {
-        username:'',
-        password: '',
-        nickname: '',
-        mobile: ''
+        username: "",
+        password: "",
+        nickname: "",
+        mobile: ""
       },
       rules: {
         nickname: [
-         { required: true, message: '昵称不能为空', trigger: 'blur' }
-          ],
-          username: [
-           { required: true, message: '用户名不能为空', trigger: 'blur' }
-          ],
-          mobile: [
-           { required: true, max:11, min:11,message: '请输入11位的手机号', trigger: 'blur' }
-          ],
-          password: [
-           { required: true ,message: '请输入11位的手机号', trigger: 'blur' }
-          ]
-      }
-    }
+          { required: true, message: "昵称不能为空", trigger: "blur" }
+        ],
+        username: [
+          { required: true, message: "用户名不能为空", trigger: "blur" }
+        ],
+        mobile: [
+          {
+            required: true,
+            max: 11,
+            min: 11,
+            message: "请输入11位的手机号",
+            trigger: "blur"
+          }
+        ],
+        password: [
+          { required: true, message: "请输入11位的手机号", trigger: "blur" }
+        ]
+      },
+      index: {}
+    };
   },
   methods: {
-    reg: function () {
-      const _this = this;
-      let nickname = _this.registerForm.nickname
-      let  mobile = _this.registerForm.mobile
-      let  username = _this.registerForm.username
-      let  password =  _this.registerForm.password
-      if(!nickname){
-        return 
-      }
-      if(!mobile){
-        return 
-      }
-      if(!username){
-        return 
-      }
-      if(!password){
-        return 
-      }
-      if(/[^0-9]/g.test(mobile)){
-        Message.error({
-          message: '请输入正确的手机号'
-        })
-        return
-      }
-      _this.$http({
-        url: '/api/register',
-        method: 'POST',
-        data: {
-          nickname,
-          mobile,
-          username,
-          password
+    login: function() {
+      this.$router.push("/login");
+      for (let j = 0; j <= 5; j++) {
+        if (this.index[j]) {
+          clearTimeout(this.index[j]);
         }
-      })
-      .then(data => {
-        console.log(data)
-      })
+      }
+      Message.closeAll()
+    },
+    reg: function() {
+      const _this = this;
+      let nickname = _this.registerForm.nickname;
+      let mobile = _this.registerForm.mobile;
+      let username = _this.registerForm.username;
+      let password = _this.registerForm.password;
+      if (!nickname) {
+        return;
+      }
+      if (!mobile) {
+        return;
+      }
+      if (!username) {
+        return;
+      }
+      if (!password) {
+        return;
+      }
+      if (/[^0-9]/g.test(mobile)) {
+        Message.error({
+          message: "请输入正确的手机号"
+        });
+        return;
+      }
+      _this
+        .$http({
+          url: "/api/register",
+          method: "POST",
+          data: {
+            nickname,
+            mobile,
+            username,
+            password
+          }
+        })
+        .then(data => {
+          const _this = this;
+          const res = data.data;
+          if (res.success) {
+            Message.success({
+              message: res.message + "5秒后自动跳到登录页"
+            });
+
+            for (let i = 0; i <= 5; i++) {
+              this.index[i] = setTimeout(function() {
+                Message.success({
+                  message: res.message + (5 - i) + "秒后自动跳到登录页"
+                });
+                if (i == 5) {
+                  _this.$router.push("/login");
+                }
+              }, i * 1000);
+            }
+          } else {
+            Message.error({
+              message: res.message
+            });
+          }
+        });
       return false;
     }
   }
 };
 </script>
 <style lang="less">
-#register{
+#register {
   display: flex;
   justify-content: center;
   align-items: center;
 }
-.register{
+.register {
   margin-top: 200px;
   width: 500px;
   height: 500px;
   display: flex;
   justify-content: center;
   align-items: center;
-  .cz{
+  .cz {
     display: flex;
     justify-content: center;
   }

@@ -105,7 +105,7 @@ export default {
   .login{
     width: 400px;
     height: 400px;
-    margin: 500px auto;
+    margin: 100px auto;
     // border: 1px solid #d6d6d6;
     display: flex;
     align-items: center;
