@@ -3,7 +3,7 @@
     <top-bar></top-bar>
     <div class="content">
       <nav-bar></nav-bar>
-      <list-content></list-content>
+      <!-- <list-content></list-content> -->
       <router-view></router-view>
     </div>
   </div>

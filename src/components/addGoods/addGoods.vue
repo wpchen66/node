@@ -17,9 +17,9 @@
         </el-form-item>
         <!--  -->
         <el-form-item  label="添加商品图片"></el-form-item>
-         <el-upload
-         class="upload"
-         action="string"
+        <el-upload
+        class="upload"
+        action="string"
         :multiple="true"
         ref="uploadfile"
         :before-upload="beforeInfo"
@@ -151,7 +151,7 @@ export default {
       const number = this.form.number;
       const id = this.form.id;
       if (this.removeList.length) {
-       this.form.removeList = Object.assign([], this.removeList)
+        this.form.removeList = Object.assign([], this.removeList);
       }
       if (!id) {
         this.upload = new FormData();

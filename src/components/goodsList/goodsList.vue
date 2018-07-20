@@ -50,6 +50,7 @@ import {
   Table,
   TableColumn,
   Button,
+  Message
 } from 'element-ui'
 Vue.use(Table)
 Vue.use(TableColumn)
@@ -71,7 +72,12 @@ export default {
       url: "/api/getGoodsList",
       method: "GET"
     }).then(data => {
-      console.log(data);
+      if(data.data.token===0){
+        // Message.error({
+        //   message: data.data.message
+        // })
+        this.$router.push('/login')
+      }
       const goodsList = data.data.data
       this.tableData = goodsList
     });

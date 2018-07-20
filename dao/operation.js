@@ -7,7 +7,9 @@ import {
 } from 'mongoose';
 import * as select from './config.js';
 import jwt from 'jsonwebtoken';
-import {createDir} from '../util/util.js'
+import {
+  createDir
+} from '../util/util.js'
 const fs = require('fs');
 const formidable = require('formidable');
 const path = require('path')
@@ -180,7 +182,7 @@ export function addGoods(req, callback) {
           if (err) {
             console.error(err)
           }
-          const imgUrl = 'http://'+serverUrl + '/static/images/' + date.getFullYear() + '/' + (date.getMonth() + 1) + '/' + date.getDate() + '/' + id + '.' + type
+          const imgUrl = 'http://' + serverUrl + '/static/images/' + date.getFullYear() + '/' + (date.getMonth() + 1) + '/' + date.getDate() + '/' + id + '.' + type
           imgList.push(imgUrl)
           if (index === Object.values(files).length - 1) {
             const date = new Date()
@@ -195,7 +197,7 @@ export function addGoods(req, callback) {
               number: goods.number,
               pic: imgList
             })
-          
+
             goodsInfo.save(function (err, data) {
               if (err) {
                 console.log(err)
@@ -226,10 +228,10 @@ export function getGoodsList(callback) {
     callback(obj)
   })
 }
-export function updataGoods(req,callback) {
+export function updataGoods(req, callback) {
   const form = new formidable.IncomingForm()
   form.parse(req, function (err, fields, files) {
-    if(err){
+    if (err) {
       console.error(err)
     }
     const goodsInfo = JSON.parse(fields.form)
@@ -238,57 +240,87 @@ export function updataGoods(req,callback) {
     const des = goodsInfo.des;
     const price = goodsInfo.price;
     const number = goodsInfo.number
-    goodsModel.findOne({_id: id},function(err, res){
-      if(err){
+    goodsModel.findOne({
+      _id: id
+    }, function (err, res) {
+      if (err) {
         console.error(err)
       }
-      console.log(res, 1231223)
+      // console.log(res, 1231223)
       let arr = []
-      res['pic'].forEach(function(item, index){
-        if(!goodsInfo.removeList.indexOf(item)){
-          arr.push(item)
-        }
-      })
-      let date = new Date()
-      let imgPath = path.resolve('static/images/' + date.getFullYear() + '/' + (date.getMonth() + 1) + '/' + date.getDate())
-      let imgList = []
-      createDir(date)
-      Object.values(files).forEach(function (item, index) {
-        // console.log(item)
-        fs.readFile(item.path, function (err, data) {
-          if (err) {
-            console.error(err)
-            return
+      console.log(res.pic, 2222222)
+      if(goodsInfo.removeList && goodsInfo.removeList.length){
+        res['pic'].forEach(function (item, index) {
+          console.log(goodsInfo.removeList, 444444444)
+          if (goodsInfo.removeList.indexOf(item)===-1) {
+            arr.push(item)
+            console.log(arr, 11111)
           }
-          const id = uuid()
-          let type = item.type.split('/')[1]
-          fs.writeFile(imgPath + '/' + id + '.' + type, data, function (err, data) {
+        })
+      }else{
+        arr = res.pic
+      }
+      
+      console.log(arr)
+      let date = new Date()
+      console.log(files,66666666666666)
+      if (Object.values(files).length) {
+        let imgPath = path.resolve('static/images/' + date.getFullYear() + '/' + (date.getMonth() + 1) + '/' + date.getDate())
+        let imgList = []
+        createDir(date)
+        Object.values(files).forEach(function (item, index) {
+          // console.log(item)
+          fs.readFile(item.path, function (err, data) {
             if (err) {
               console.error(err)
+              return
             }
-            const imgUrl = 'http://'+serverUrl + '/static/images/' + date.getFullYear() + '/' + (date.getMonth() + 1) + '/' + date.getDate() + '/' + id + '.' + type
-            imgList.push(imgUrl)
-            if (index === Object.values(files).length - 1) {
-              const date = new Date()
-              const year = `${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}`
-              const time = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
-              res.name = name
-              res.price = price
-              res.des = des 
-              res.number = number
-              arr = [...arr,...imgList]
-              res.pic = arr
-              res.save(function (err, data) {
-                if (err) {
-                  console.log(err)
-                  return
-                }
-                console.log(data, '商品更新成功')
-              })
-            }
+            const id = uuid()
+            let type = item.type.split('/')[1]
+            fs.writeFile(imgPath + '/' + id + '.' + type, data, function (err, data) {
+              if (err) {
+                console.error(err)
+              }
+              const imgUrl = 'http://' + serverUrl + '/static/images/' + date.getFullYear() + '/' + (date.getMonth() + 1) + '/' + date.getDate() + '/' + id + '.' + type
+              imgList.push(imgUrl)
+              if (index === Object.values(files).length - 1) {
+                const date = new Date()
+                const year = `${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}`
+                const time = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
+                let newarr;
+                res.name = name
+                res.price = price
+                res.des = des
+                res.number = number
+                console.log(imgList, arr, 1212121211)
+                newarr = [...arr, ...imgList]
+                res.pic = newarr;
+                res.save(function (err, data) {
+                  if (err) {
+                    console.log(err)
+                    return
+                  }
+                  console.log(data, '商品更新成功')
+                })
+              }
+            })
           })
         })
-      })
+      } else {
+        console.log(55555555)
+        res.name = name
+        res.price = price
+        res.des = des
+        res.number = number
+        res.pic = arr;
+        res.save(function (err, data) {
+          if (err) {
+            console.log(err)
+            return
+          }
+          console.log(data, '商品更新成功')
+        })
+      }
       // data.save(function(err, data){
       //   if(err){
       //     console.error(err)
@@ -296,5 +328,12 @@ export function updataGoods(req,callback) {
       //   console.log(data, '商品更新成功')
       // })
     })
+  })
+}
+
+export function addClassify(req, callback){
+  const form = new formidable.IncomingForm() 
+  form.parse(req, function(err,fields, files){
+    console.log(fields, files)
   })
 }

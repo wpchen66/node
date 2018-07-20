@@ -9,6 +9,7 @@ import store from '../store/index.js'
 import {
   getLstorage
 } from './utils/util.js'
+import {Message} from 'element-ui'
 Vue.config.productionTip = false
 /* eslint-disable no-new */
 axios.defaults.headers['Content-Type'] = 'application/json'
@@ -27,6 +28,15 @@ axios.interceptors.request.use(req => {
   return req
 })
 
+axios.interceptors.response.use(res => {
+  console.log(res)
+  if(res.data.token===0){
+    res.data.message ='登陆超时,请重新登陆'
+    return res
+  }else{
+    return res
+  }
+})
 Vue.prototype.$http = axios
 new Vue({
   el: '#app',

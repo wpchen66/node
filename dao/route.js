@@ -61,3 +61,10 @@ export function updataGoods(req, res){
   }
   db.updataGoods(req,callback)
 }
+
+export function addClassify(req, res){
+  let callback =  () => {
+
+  }
+  db.addClassify(req,callback)
+}

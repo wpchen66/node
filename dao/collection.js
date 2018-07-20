@@ -38,6 +38,36 @@ let goodsSchema = new mogoose.Schema({
   pic: {type: [String, Array]}
 })
 
+let firClssifySchema = new mogoose.Schema({
+  name: {type: String},
+  mobilename: {type: String},
+  color: {type: String},
+  isShow: {type: Boolean},
+  pic: {type: String},
+  sort: {type: Number}
+})
+let secClssifySchema = new mogoose.Schema({
+  firClssifyId: {type: Schema.Types.ObjectId, ref: 'firClssify'},
+  name: {type: String},
+  mobilename: {type: String},
+  color: {type: String},
+  isShow: {type: Boolean},
+  pic: {type: String},
+  sort: {type: Number}
+})
+let tirClssifySchema = new mogoose.Schema({
+  secClssifyId: {type: Schema.Types.ObjectId, ref: 'secClssify'},
+  name: {type: String},
+  mobilename: {type: String},
+  color: {type: String},
+  isShow: {type: Boolean},
+  pic: {type: String},
+  sort: {type: Number}
+})
+
+export const firClssify = mogoose.model('firClssify', firClssifySchema)
+export const secClssify = mogoose.model('secClssify', secClssifySchema)
+export const tirClssify = mogoose.model('tirClssify', tirClssifySchema)
 export const userModel = mogoose.model('userInfo', userSchema)
 export const goodsModel = mogoose.model('goodsInfo', goodsSchema)
 

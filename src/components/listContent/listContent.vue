@@ -18,9 +18,10 @@ export default {
     }
   },
   mounted(){
+    console.log(1)
     const _this = this
-   this.addShow = this.$store.state.addShow
-   this.$set(_this, 'addShow', _this.$store.state.addShow)
+   this.addShow = false
+  //  this.$set(_this, 'addShow', _this.$store.state.addShow)
   },
   methods: {
     addHandle: function () {

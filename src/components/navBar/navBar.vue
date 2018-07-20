@@ -11,6 +11,12 @@
           <span>商品列表</span>
         </router-link>
       </el-menu-item>
+      <el-menu-item index="2">
+        <router-link to="/index/classifylist">
+          <i class="el-icon-tickets"></i>
+          <span>添加商品分类</span>
+        </router-link>
+      </el-menu-item>
     </el-menu>
   </div>
 </template>
@@ -58,7 +64,8 @@ export default {
   height: 100%;
 }
 a{
-  color: #909399
+  color: #909399;
+  display: block
 }
 a:hover{
   color: #409EFF
