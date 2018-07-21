@@ -11,8 +11,8 @@
       <button type="submit">提交</button>
       </form> -->
       <el-form :model="loginForm" :rules="rules" ref="loginForm" label-width="100px" class="demo-ruleForm">
-        <el-form-item label="账号" prop="name">
-          <el-input v-model.trim="loginForm.username" placeholder="请输入用户名或者手机号"></el-input>
+        <el-form-item label="账号" prop="username">
+          <el-input v-model.trim="loginForm.username" auto-complete="off" placeholder="请输入用户名或者手机号"></el-input>
         </el-form-item>
         <el-form-item label="密码" prop="password">
           <el-input type="password" auto-complete="off" v-model.trim="loginForm.password" placeholder="请输入密码"></el-input>
@@ -42,7 +42,7 @@ export default {
         password: ""
       },
       rules: {
-        name: [
+        username: [
           { required: true, message: "请输入用户名或者手机号", trigger: "blur" }
         ],
         password: [{ required: true, message: "请输入密码", trigger: "blur" }]

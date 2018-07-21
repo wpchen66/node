@@ -1,6 +1,9 @@
 import {
   userModel,
-  goodsModel
+  goodsModel,
+  firClass,
+  secClass,
+  tirClass
 } from './collection.js'
 import {
   Model
@@ -8,7 +11,10 @@ import {
 import * as select from './config.js';
 import jwt from 'jsonwebtoken';
 import {
-  createDir
+  createDir,
+  saveClass,
+  saveSecClass,
+  saveTirClass
 } from '../util/util.js'
 const fs = require('fs');
 const formidable = require('formidable');
@@ -261,7 +267,6 @@ export function updataGoods(req, callback) {
         arr = res.pic
       }
       
-      console.log(arr)
       let date = new Date()
       console.log(files,66666666666666)
       if (Object.values(files).length) {
@@ -335,5 +340,84 @@ export function addClassify(req, callback){
   const form = new formidable.IncomingForm() 
   form.parse(req, function(err,fields, files){
     console.log(fields, files)
+    const classifyInfo = JSON.parse(fields.form);
+    const classname = classifyInfo.name;
+    const mobilename = classifyInfo.mobilename;
+    const color = classifyInfo.color;
+    const sort = classifyInfo['sort'];
+    const isShow = classifyInfo.isShow;
+    const firClassify = classifyInfo.firstClassify
+    const secClassify = classifyInfo.secClassify;
+    const tirClassify = classifyInfo.tirClassify;
+    let imgUrl = "";
+    const date = new Date()
+      if(Object.values(files).length){
+        let imgPath = path.resolve('static/images/' + date.getFullYear() + '/' + (date.getMonth() + 1) + '/' + date.getDate())
+        let imgList = ""
+        const imgFile = files['0']
+        createDir(date)
+        fs.readFile(imgFile.path, function(err, data){
+          if (err) {
+            console.error(err)
+            return
+          }
+          const id = uuid()
+          let type = imgFile.type.split('/')[1]
+          fs.writeFile(imgPath + '/' + id + '.' + type, data, function(err, res){
+            if(err){
+              console.error(err)
+            }
+             imgUrl = `http://${serverUrl}/static/images/${date.getFullYear()}/${date.getMonth()+1}/${date.getDate()}/${id}.${type}`
+            if(!firClassify){
+              saveClass(firClass, classifyInfo, imgUrl)
+              return
+            }
+            if(!secClassify){
+              saveSecClass(secClass, classifyInfo, imgUrl)
+              return
+            }
+            if(!tirClassify){
+              saveTirClass(tirClass, classifyInfo, imgUrl)
+              return
+            }
+          })
+        })
+      }else{
+        if(!firClassify){
+          saveClass(firClass, classifyInfo, imgUrl)
+          return
+        }
+        if(!secClassify){
+          saveSecClass(secClass, classifyInfo, imgUrl)
+          return
+        }
+        if(!tirClassify){
+          saveTirClass(tirClass, classifyInfo, imgUrl)
+          return
+        }
+      }
+  })
+}
+
+export function getFirClassify(callback){
+  firClass.find(function(err, data){
+    if(err){
+      console.error(err)
+    }
+    let arr = []
+    data.forEach((item, index) => {
+      let obj = {}
+      obj.id = item['_id']
+      obj.mobilename = item.mobilename,
+      obj.name = item.name
+      arr.push(obj)
+    })
+    callback(arr)
+  })
+}
+
+export function getSecClassify(id, callback){
+  secClass.find({name: '时尚男装'}).populate('secClssifyId').exec(function(err, data){
+    console.log(data,11111,data.secClssifyId.name)
   })
 }

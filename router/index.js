@@ -12,4 +12,6 @@ router.post('/addGoods', route.addGoods)
 router.get('/getGoodsList', route.getGoodsList)
 router.post('/updataGoods', route.updataGoods)
 router.post('/addClassify', route.addClassify)
+router.get('/getFirClassify', route.getFirClassify)
+router.get('/getSecClassify', route.getSecClassify)
 export default router

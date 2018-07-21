@@ -68,3 +68,18 @@ export function addClassify(req, res){
   }
   db.addClassify(req,callback)
 }
+
+export function getFirClassify(req, res){
+    let callback = (data) => {
+        res.send(data)
+    }
+    db.getFirClassify(callback)
+}
+export function getSecClassify(req, res){
+  console.log(req.query)
+  let id = req.query.firstClassify
+  let callback = (data) => {
+    res.send(data)
+}
+db.getSecClassify(id, callback)
+}

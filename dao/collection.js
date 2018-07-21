@@ -5,7 +5,10 @@ let userSchema = new mogoose.Schema({
   mobile: Number,
   nickname: [String, Number],
   password: [String, Number],
-  money: {type: Number, default: 0}
+  money: {
+    type: Number,
+    default: 0
+  }
 })
 //密码加密  除了用户谁都不知道密码
 //  userSchema.pre('save', function (next) {
@@ -29,45 +32,103 @@ let userSchema = new mogoose.Schema({
 // }
 
 let goodsSchema = new mogoose.Schema({
-  date: {type: String},
-  time: {type: String},
-  name: {type: String},
-  number: {type: Number, default: 0},
-  price: {type: Number, default: 0},
-  des: {type: String},
-  pic: {type: [String, Array]}
+  date: {
+    type: String
+  },
+  time: {
+    type: String
+  },
+  name: {
+    type: String
+  },
+  number: {
+    type: Number,
+    default: 0
+  },
+  price: {
+    type: Number,
+    default: 0
+  },
+  des: {
+    type: String
+  },
+  pic: {
+    type: [String, Array]
+  }
 })
 
 let firClssifySchema = new mogoose.Schema({
-  name: {type: String},
-  mobilename: {type: String},
-  color: {type: String},
-  isShow: {type: Boolean},
-  pic: {type: String},
-  sort: {type: Number}
+  _id: mogoose.Schema.Types.ObjectId,
+  name: {
+    type: String
+  },
+  mobilename: {
+    type: String
+  },
+  color: {
+    type: String
+  },
+  isShow: {
+    type: Boolean
+  },
+  pic: {
+    type: String
+  },
+  sort: {
+    type: Number
+  }
 })
 let secClssifySchema = new mogoose.Schema({
-  firClssifyId: {type: Schema.Types.ObjectId, ref: 'firClssify'},
-  name: {type: String},
-  mobilename: {type: String},
-  color: {type: String},
-  isShow: {type: Boolean},
-  pic: {type: String},
-  sort: {type: Number}
+  firClssifyId: {
+    type: mogoose.Schema.Types.ObjectId,
+    ref: 'firClssify'
+  },
+  name: {
+    type: String
+  },
+  mobilename: {
+    type: String
+  },
+  color: {
+    type: String
+  },
+  isShow: {
+    type: Boolean
+  },
+  pic: {
+    type: String
+  },
+  sort: {
+    type: Number
+  }
 })
 let tirClssifySchema = new mogoose.Schema({
-  secClssifyId: {type: Schema.Types.ObjectId, ref: 'secClssify'},
-  name: {type: String},
-  mobilename: {type: String},
-  color: {type: String},
-  isShow: {type: Boolean},
-  pic: {type: String},
-  sort: {type: Number}
+  secClssifyId: {
+    type: mogoose.Schema.Types.ObjectId,
+    ref: 'secClssify'
+  },
+  name: {
+    type: String
+  },
+  mobilename: {
+    type: String
+  },
+  color: {
+    type: String
+  },
+  isShow: {
+    type: Boolean
+  },
+  pic: {
+    type: String
+  },
+  sort: {
+    type: Number
+  }
 })
 
-export const firClssify = mogoose.model('firClssify', firClssifySchema)
-export const secClssify = mogoose.model('secClssify', secClssifySchema)
-export const tirClssify = mogoose.model('tirClssify', tirClssifySchema)
+export const firClass = mogoose.model('firClssify', firClssifySchema)
+export const secClass = mogoose.model('secClssify', secClssifySchema)
+export const tirClass = mogoose.model('tirClssify', tirClssifySchema)
 export const userModel = mogoose.model('userInfo', userSchema)
 export const goodsModel = mogoose.model('goodsInfo', goodsSchema)
-

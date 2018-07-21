@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken')
 const path = require('path')
 const fs = require('fs')
+const mongoose = require('mongoose')
 export function verifyjwt(token, code, callback) {
   jwt.verify(token, code, function (err, success) {
     if (err) {
@@ -50,5 +51,59 @@ export function createDir(date) {
         console.log('日目录创建成功')
       })
     }
+  })
+}
+
+export function saveClass(Classify, classifyInfo, imgUrl, callback){
+  let {name, mobilename, sort, isShow, color} = classifyInfo;
+  const firkind = new Classify({
+    _id: new mongoose.Types.ObjectId(),
+    name,
+    mobilename,
+    sort,
+    isShow,
+    color,
+    pic: imgUrl
+  })
+  firkind.save(function(err, data){
+    if(err){
+      console.error(err)
+    }
+    console.log(data, '一级分类保存成功')
+  })
+}
+export function saveSecClass (Classify, classifyInfo, imgUrl, callback) {
+  let {name, mobilename, sort, isShow, color, firstClssify} = classifyInfo;
+  const firkind = new Classify({
+    firClssifyId: classifyInfo.firstClssify,
+    name,
+    mobilename,
+    sort,
+    isShow,
+    color,
+    pic: imgUrl
+  })
+  firkind.save(function(err, data){
+    if(err){
+      console.error(err)
+    }
+    console.log(data, '二级分类保存成功')
+  })
+}
+export function saveTirClass (Classify, classifyInfo, imgUrl, callback) {
+  let {name, mobilename, sort, isShow, color, secClssify} = classifyInfo;
+  const firkind = new Classify({
+    name,
+    mobilename,
+    sort,
+    isShow,
+    color,
+    pic: imgUrl
+  })
+  firkind.save(function(err, data){
+    if(err){
+      console.error(err)
+    }
+    console.log(data, '三级分类保存成功')
   })
 }

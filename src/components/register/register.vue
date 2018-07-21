@@ -71,7 +71,7 @@ export default {
           }
         ],
         password: [
-          { required: true, message: "请输入11位的手机号", trigger: "blur" }
+          { required: true, message: "密码不能为空", trigger: "blur" }
         ]
       },
       index: {}
