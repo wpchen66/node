@@ -3,6 +3,7 @@
     <el-button @click="addHandle" type="primary">添加分类</el-button>
     <add-classify
     v-if="addShow"
+    :setAdd="setAdd"
     >
     </add-classify>
     <classify
@@ -24,6 +25,9 @@ export default {
   methods: {
     addHandle: function(){
       this.addShow = true
+    },
+    setAdd: function(style){
+      this.addShow = style
     }
   },
   components:{

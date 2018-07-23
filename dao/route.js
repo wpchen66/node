@@ -63,8 +63,8 @@ export function updataGoods(req, res){
 }
 
 export function addClassify(req, res){
-  let callback =  () => {
-
+  let callback =  (data) => {
+    res.send(data)
   }
   db.addClassify(req,callback)
 }

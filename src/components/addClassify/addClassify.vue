@@ -10,11 +10,13 @@
           <el-form-item  label="上级分类名称:">
              <el-select @change="getSecClassify($event)" v-model="classifyForm.firstClassify"  placeholder="选择顶级分类">
                <template v-if="firClass.length">
-                 <el-option  v-for="item in firClass" :key="item.id" :label="item.name" :value="item.id">
+                 <el-option  v-for="item in firClass" :key="item.id" :label="item.name" :value="item['_id']">
                  </el-option>
                </template>
             </el-select>
             <el-select v-model="classifyForm.secClassify" placeholder="选择二级分类">
+               <el-option v-for="item in secClass" :key="item.id" :label="item.name" :value="item['_id']">
+                 </el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="导航栏是否显示:">
@@ -61,7 +63,9 @@ import {
   Switch,
   Upload,
   Dialog,
-  Button
+  Button,
+  Message,
+  Loading
 } from "element-ui";
 Vue.use(Form);
 Vue.use(FormItem);
@@ -73,6 +77,9 @@ Vue.use(Upload);
 Vue.use(Dialog);
 Vue.use(Button);
 export default {
+  props:{
+    setAdd: Function
+  },
   data() {
     return {
       classifyForm: {
@@ -107,7 +114,7 @@ export default {
       type: "GET",
       url: "/api/getFirClassify"
     }).then(data => {
-      this.firClass = data.data;
+      this.firClass = data.data.data;
     });
     // this.$http.get("/api/getFirClassfiy").then(data => {
     //   console.log(data);
@@ -121,7 +128,8 @@ export default {
         url: "/api/getSecClassify",
         params: {firstClassify: this.classifyForm.firstClassify}
       }).then(data => {
-        this.secClass = data.data;
+        this.secClass = data.data.data;
+        console.log(data)
       });
     },
     removeImg: function(file, files) {
@@ -137,6 +145,10 @@ export default {
       return false;
     },
     onSubmit: function() {
+    let loadingInstance = Loading.service({
+        text: "正在提交",
+        target: "#addClassify"
+      })
       this.upload = new FormData();
       new Promise((resolve, reject) => {
         this.$refs.uploadfile.submit();
@@ -150,6 +162,12 @@ export default {
           url: "/api/addClassify",
           data: this.upload
         }).then(res => {
+          this.$nextTick(()=>{
+            loadingInstance.close();
+            Message.success({
+              message: res.data.message
+            })
+          })
           console.log(res);
           this.index = 0;
         });

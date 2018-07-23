@@ -369,30 +369,30 @@ export function addClassify(req, callback){
             }
              imgUrl = `http://${serverUrl}/static/images/${date.getFullYear()}/${date.getMonth()+1}/${date.getDate()}/${id}.${type}`
             if(!firClassify){
-              saveClass(firClass, classifyInfo, imgUrl)
+              saveClass(firClass, classifyInfo, imgUrl,callback)
               return
             }
             if(!secClassify){
-              saveSecClass(secClass, classifyInfo, imgUrl)
+              saveSecClass(secClass, classifyInfo, imgUrl,callback,firClass)
               return
             }
             if(!tirClassify){
-              saveTirClass(tirClass, classifyInfo, imgUrl)
+              saveTirClass(tirClass, classifyInfo, imgUrl,callback,secClass)
               return
             }
           })
         })
       }else{
         if(!firClassify){
-          saveClass(firClass, classifyInfo, imgUrl)
+          saveClass(firClass, classifyInfo, imgUrl,callback)
           return
         }
         if(!secClassify){
-          saveSecClass(secClass, classifyInfo, imgUrl)
+          saveSecClass(secClass, classifyInfo, imgUrl,callback,firClass)
           return
         }
         if(!tirClassify){
-          saveTirClass(tirClass, classifyInfo, imgUrl)
+          saveTirClass(tirClass, classifyInfo, imgUrl,callback,secClass)
           return
         }
       }
@@ -404,20 +404,26 @@ export function getFirClassify(callback){
     if(err){
       console.error(err)
     }
-    let arr = []
-    data.forEach((item, index) => {
-      let obj = {}
-      obj.id = item['_id']
-      obj.mobilename = item.mobilename,
-      obj.name = item.name
-      arr.push(obj)
-    })
-    callback(arr)
+    let obj ={
+      success: true,
+      data: data
+    }
+    callback(obj)
   })
 }
 
 export function getSecClassify(id, callback){
-  secClass.find({name: '时尚男装'}).populate('secClssifyId').exec(function(err, data){
-    console.log(data,11111,data.secClssifyId.name)
+  // secClass.findById('5b557ff9b6aa76268c4bf4f2').populate('firClssifyId').exec(function(err, data){
+  //   console.log(data,11111,data.secClssifyId)
+  // })
+  firClass.findById(id).populate('secClssifyId').exec(function(err, data){
+    if(err){
+      console.error(err)
+    }
+    let obj = {
+      success: true,
+      data: data.secClssifyId
+    }
+    callback(obj)
   })
 }

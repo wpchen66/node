@@ -69,13 +69,18 @@ export function saveClass(Classify, classifyInfo, imgUrl, callback){
     if(err){
       console.error(err)
     }
+    let obj ={
+      success: true,
+      message: '一级分类保存成功'
+    }
+    callback(obj)
     console.log(data, '一级分类保存成功')
   })
 }
-export function saveSecClass (Classify, classifyInfo, imgUrl, callback) {
-  let {name, mobilename, sort, isShow, color, firstClssify} = classifyInfo;
+export function saveSecClass (Classify, classifyInfo, imgUrl,callback ,superior) {
+  let {name, mobilename, sort, isShow, color, firstClassify} = classifyInfo;
   const firkind = new Classify({
-    firClssifyId: classifyInfo.firstClssify,
+    firClssifyId: firstClassify,
     name,
     mobilename,
     sort,
@@ -83,15 +88,32 @@ export function saveSecClass (Classify, classifyInfo, imgUrl, callback) {
     color,
     pic: imgUrl
   })
-  firkind.save(function(err, data){
+  firkind.save(function(err, res){
     if(err){
       console.error(err)
     }
-    console.log(data, '二级分类保存成功')
+    let obj ={
+      success: true,
+      message: '二级分类保存成功'
+    }
+    callback(obj)
+    console.log(res, '二级分类保存成功')
+    if(superior){
+      superior.findById(firstClassify, function(err, data){
+        if(err){
+          console.error(err)
+        }
+        data.secClssifyId.push(res['_id'])
+        data.save(function(err, data){
+          console.log(data,'一级联系成功')
+        })
+      })
+    }
   })
+ 
 }
-export function saveTirClass (Classify, classifyInfo, imgUrl, callback) {
-  let {name, mobilename, sort, isShow, color, secClssify} = classifyInfo;
+export function saveTirClass (Classify, classifyInfo, imgUrl,callback, superior) {
+  let {name, mobilename, sort, isShow, color, secClassify} = classifyInfo;
   const firkind = new Classify({
     name,
     mobilename,
@@ -100,10 +122,26 @@ export function saveTirClass (Classify, classifyInfo, imgUrl, callback) {
     color,
     pic: imgUrl
   })
-  firkind.save(function(err, data){
+  firkind.save(function(err, res){
     if(err){
       console.error(err)
     }
-    console.log(data, '三级分类保存成功')
+    let obj ={
+      success: true,
+      message: '三级分类保存成功'
+    }
+    callback(obj)
+    console.log(res, '三级分类保存成功')
+    if(superior){
+      superior.findById(secClassify, function(err, data){
+        if(err){
+          console.error(err)
+        }
+        data.tirClssifyId.push(res['_id'])
+        data.save(function(err, data){
+          console.log(data,'二级联系成功')
+        })
+      })
+    }
   })
 }

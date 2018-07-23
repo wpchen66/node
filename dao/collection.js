@@ -1,4 +1,5 @@
 let mogoose = require('mongoose')
+let Schema = mogoose.Schema
 let userSchema = new mogoose.Schema({
   username: [String, Number],
   token: String,
@@ -58,7 +59,7 @@ let goodsSchema = new mogoose.Schema({
 })
 
 let firClssifySchema = new mogoose.Schema({
-  _id: mogoose.Schema.Types.ObjectId,
+  _id: Schema.Types.ObjectId,
   name: {
     type: String
   },
@@ -76,13 +77,23 @@ let firClssifySchema = new mogoose.Schema({
   },
   sort: {
     type: Number
-  }
+  },
+  secClssifyId: [
+    {
+      type:Schema.Types.ObjectId,
+      ref: "secClssify"
+    }
+  ]
 })
 let secClssifySchema = new mogoose.Schema({
   firClssifyId: {
-    type: mogoose.Schema.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     ref: 'firClssify'
   },
+  tirClssifyId: [{
+    type: Schema.Types.ObjectId,
+    ref: "tirClssify"
+  }],
   name: {
     type: String
   },
