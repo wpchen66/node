@@ -8,13 +8,17 @@
             <el-input v-model="classifyForm.mobilename"></el-input>
           </el-form-item>
           <el-form-item  label="上级分类名称:">
-             <el-select @change="getSecClassify($event)" v-model="classifyForm.firstClassify"  placeholder="选择顶级分类">
+             <el-select @change="getSecClassify($event)"   v-model="classifyForm.firstClassify"  placeholder="选择顶级分类">
+                <el-option label="选择顶级分类" value="">
+                 </el-option>
                <template v-if="firClass.length">
                  <el-option  v-for="item in firClass" :key="item.id" :label="item.name" :value="item['_id']">
                  </el-option>
                </template>
             </el-select>
-            <el-select v-model="classifyForm.secClassify" placeholder="选择二级分类">
+            <el-select @change="setSecClassify($event)" value-key="secClassify" no-data-text="选择二级分类" v-model="classifyForm['secClassify']" ref="secSelected"  placeholder="选择二级分类">
+               <el-option label="选择二级分类" value="">
+                 </el-option>
                <el-option v-for="item in secClass" :key="item.id" :label="item.name" :value="item['_id']">
                  </el-option>
             </el-select>
@@ -108,8 +112,23 @@ export default {
       secClass: []
     };
   },
+  created(){
+    let classifyInfo = this.$store.state.classifyInfo
+    if(classifyInfo){
+      this.classifyForm = {
+        name: classifyInfo.name,
+        sort: classifyInfo.sort,
+        mobilename: classifyInfo.mobilename,
+        isShow: classifyInfo.isShow,
+        color: classifyInfo.color
+      }
+      if(classifyInfo.pic){
+        this.uploadList.push(classifyInfo.pic)
+      }
+      
+    }
+  },
   mounted() {
-    console.log(this);
     this.$http({
       type: "GET",
       url: "/api/getFirClassify"
@@ -121,23 +140,30 @@ export default {
     // });
   },
   methods: {
-    getSecClassify: function() {
-      console.log(121)
+    getSecClassify: function(data) {
+      // if(!this.classifyForm.firstClassify){
+      //   return
+      // }
+      this.secClass = [];
+      console.log(this.classifyForm.secClassify)
       this.$http({
         type: "GET",
         url: "/api/getSecClassify",
         params: {firstClassify: this.classifyForm.firstClassify}
       }).then(data => {
+        console.log(this.classifyForm.secClassify)
         this.secClass = data.data.data;
-        console.log(data)
       });
+    },
+    setSecClassify:function (data) {
+        // this.classifyForm.secClassify = data
+        console.log(this.classifyForm['secClassify'],11111)
     },
     removeImg: function(file, files) {
       this.removeList = file["url"];
       console.log(this.removeList, 22222);
     },
     changeHandle: function(file, filelist) {
-      console.log(file, filelist);
       this.uploadList = filelist;
     },
     beforeInfo: function(item) {

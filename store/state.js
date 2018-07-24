@@ -1,5 +1,6 @@
 const state = {
   goodsInfo: null,
-  addShow: false
+  addShow: false,
+  classifyInfo: null
 }
 export default state;

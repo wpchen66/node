@@ -255,20 +255,20 @@ export function updataGoods(req, callback) {
       // console.log(res, 1231223)
       let arr = []
       console.log(res.pic, 2222222)
-      if(goodsInfo.removeList && goodsInfo.removeList.length){
+      if (goodsInfo.removeList && goodsInfo.removeList.length) {
         res['pic'].forEach(function (item, index) {
           console.log(goodsInfo.removeList, 444444444)
-          if (goodsInfo.removeList.indexOf(item)===-1) {
+          if (goodsInfo.removeList.indexOf(item) === -1) {
             arr.push(item)
             console.log(arr, 11111)
           }
         })
-      }else{
+      } else {
         arr = res.pic
       }
-      
+
       let date = new Date()
-      console.log(files,66666666666666)
+      console.log(files, 66666666666666)
       if (Object.values(files).length) {
         let imgPath = path.resolve('static/images/' + date.getFullYear() + '/' + (date.getMonth() + 1) + '/' + date.getDate())
         let imgList = []
@@ -336,9 +336,9 @@ export function updataGoods(req, callback) {
   })
 }
 
-export function addClassify(req, callback){
-  const form = new formidable.IncomingForm() 
-  form.parse(req, function(err,fields, files){
+export function addClassify(req, callback) {
+  const form = new formidable.IncomingForm()
+  form.parse(req, function (err, fields, files) {
     console.log(fields, files)
     const classifyInfo = JSON.parse(fields.form);
     const classname = classifyInfo.name;
@@ -351,60 +351,60 @@ export function addClassify(req, callback){
     const tirClassify = classifyInfo.tirClassify;
     let imgUrl = "";
     const date = new Date()
-      if(Object.values(files).length){
-        let imgPath = path.resolve('static/images/' + date.getFullYear() + '/' + (date.getMonth() + 1) + '/' + date.getDate())
-        let imgList = ""
-        const imgFile = files['0']
-        createDir(date)
-        fs.readFile(imgFile.path, function(err, data){
+    if (Object.values(files).length) {
+      let imgPath = path.resolve('static/images/' + date.getFullYear() + '/' + (date.getMonth() + 1) + '/' + date.getDate())
+      let imgList = ""
+      const imgFile = files['0']
+      createDir(date)
+      fs.readFile(imgFile.path, function (err, data) {
+        if (err) {
+          console.error(err)
+          return
+        }
+        const id = uuid()
+        let type = imgFile.type.split('/')[1]
+        fs.writeFile(imgPath + '/' + id + '.' + type, data, function (err, res) {
           if (err) {
             console.error(err)
+          }
+          imgUrl = `http://${serverUrl}/static/images/${date.getFullYear()}/${date.getMonth()+1}/${date.getDate()}/${id}.${type}`
+          if (!firClassify) {
+            saveClass(firClass, classifyInfo, imgUrl, callback)
             return
           }
-          const id = uuid()
-          let type = imgFile.type.split('/')[1]
-          fs.writeFile(imgPath + '/' + id + '.' + type, data, function(err, res){
-            if(err){
-              console.error(err)
-            }
-             imgUrl = `http://${serverUrl}/static/images/${date.getFullYear()}/${date.getMonth()+1}/${date.getDate()}/${id}.${type}`
-            if(!firClassify){
-              saveClass(firClass, classifyInfo, imgUrl,callback)
-              return
-            }
-            if(!secClassify){
-              saveSecClass(secClass, classifyInfo, imgUrl,callback,firClass)
-              return
-            }
-            if(!tirClassify){
-              saveTirClass(tirClass, classifyInfo, imgUrl,callback,secClass)
-              return
-            }
-          })
+          if (!secClassify) {
+            saveSecClass(secClass, classifyInfo, imgUrl, callback, firClass)
+            return
+          }
+          if (!tirClassify) {
+            saveTirClass(tirClass, classifyInfo, imgUrl, callback, secClass)
+            return
+          }
         })
-      }else{
-        if(!firClassify){
-          saveClass(firClass, classifyInfo, imgUrl,callback)
-          return
-        }
-        if(!secClassify){
-          saveSecClass(secClass, classifyInfo, imgUrl,callback,firClass)
-          return
-        }
-        if(!tirClassify){
-          saveTirClass(tirClass, classifyInfo, imgUrl,callback,secClass)
-          return
-        }
+      })
+    } else {
+      if (!firClassify) {
+        saveClass(firClass, classifyInfo, imgUrl, callback)
+        return
       }
+      if (!secClassify) {
+        saveSecClass(secClass, classifyInfo, imgUrl, callback, firClass)
+        return
+      }
+      if (!tirClassify) {
+        saveTirClass(tirClass, classifyInfo, imgUrl, callback, secClass)
+        return
+      }
+    }
   })
 }
 
-export function getFirClassify(callback){
-  firClass.find(function(err, data){
-    if(err){
+export function getFirClassify(callback) {
+  firClass.find(function (err, data) {
+    if (err) {
       console.error(err)
     }
-    let obj ={
+    let obj = {
       success: true,
       data: data
     }
@@ -412,17 +412,37 @@ export function getFirClassify(callback){
   })
 }
 
-export function getSecClassify(id, callback){
+export function getSecClassify(id, callback) {
   // secClass.findById('5b557ff9b6aa76268c4bf4f2').populate('firClssifyId').exec(function(err, data){
   //   console.log(data,11111,data.secClssifyId)
   // })
-  firClass.findById(id).populate('secClssifyId').exec(function(err, data){
-    if(err){
+  if(!id){
+    let obj = {
+      success: true,
+      data: []
+    }
+    callback(obj)
+    return
+  }
+  firClass.findById(id).populate('secClssifyId').exec(function (err, data) {
+    if (err) {
       console.error(err)
     }
     let obj = {
       success: true,
       data: data.secClssifyId
+    }
+    callback(obj)
+  })
+}
+export function getTirClassify(id, callback) {
+  secClass.findById(id).populate('tirClssifyId').exec(function (err, data) {
+    if (err) {
+      console.error(err)
+    }
+    let obj = {
+      success: true,
+      data: data.tirClssifyId
     }
     callback(obj)
   })

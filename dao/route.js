@@ -83,3 +83,10 @@ export function getSecClassify(req, res){
 }
 db.getSecClassify(id, callback)
 }
+export function getTirClassify(req, res){
+  let id = req.query.secClassify
+  let callback = (data) => {
+    res.send(data)
+  }
+  db.getTirClassify(id, callback)
+}

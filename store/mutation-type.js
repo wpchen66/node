@@ -1,3 +1,5 @@
 export const SET_GOODS_INFO = 'SET_GOODS_INFO';
 
 export const SET_ADDSHOW = 'SET_ADDSHOW'
+
+export const SET_CLASSIFY_INFO = 'SET_CLASSIFY_INFO' 

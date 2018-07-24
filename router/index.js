@@ -14,4 +14,5 @@ router.post('/updataGoods', route.updataGoods)
 router.post('/addClassify', route.addClassify)
 router.get('/getFirClassify', route.getFirClassify)
 router.get('/getSecClassify', route.getSecClassify)
+router.get('/getTirClassify', route.getTirClassify)
 export default router

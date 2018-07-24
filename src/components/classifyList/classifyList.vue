@@ -8,6 +8,7 @@
     </add-classify>
     <classify
       v-if="!addShow"
+      :setAdd="setAdd"
     ></classify>     
   </div>
 </template>

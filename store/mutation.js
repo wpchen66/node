@@ -7,6 +7,9 @@ const mutations = {
   [types.SET_ADDSHOW](state, addShow){
     console.log(addShow, 'mutation')
     state.addShow = addShow
+  },
+  [types.SET_CLASSIFY_INFO](state, classifyInfo){
+    state.classifyInfo = classifyInfo
   }
 }
 export default mutations
