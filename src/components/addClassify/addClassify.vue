@@ -16,11 +16,13 @@
                  </el-option>
                </template>
             </el-select>
-            <el-select @change="setSecClassify($event)" value-key="secClassify" no-data-text="选择二级分类" v-model="classifyForm['secClassify']" ref="secSelected"  placeholder="选择二级分类">
+            <el-select @change="setSecClassify($event)"   no-match-text="无数据" v-model="classifyForm['secClassify']" ref="secSelected"  placeholder="选择二级分类">
                <el-option label="选择二级分类" value="">
                  </el-option>
+                 <template v-if="secClass.length">
                <el-option v-for="item in secClass" :key="item.id" :label="item.name" :value="item['_id']">
-                 </el-option>
+                </el-option>
+                 </template>
             </el-select>
           </el-form-item>
           <el-form-item label="导航栏是否显示:">
@@ -141,9 +143,11 @@ export default {
   },
   methods: {
     getSecClassify: function(data) {
+      console.log(this.classifyForm.secClassify)
       // if(!this.classifyForm.firstClassify){
       //   return
       // }
+      this.$set(this.classifyForm, 'secClassify', "")
       this.secClass = [];
       console.log(this.classifyForm.secClassify)
       this.$http({
@@ -151,13 +155,13 @@ export default {
         url: "/api/getSecClassify",
         params: {firstClassify: this.classifyForm.firstClassify}
       }).then(data => {
-        console.log(this.classifyForm.secClassify)
+        
         this.secClass = data.data.data;
       });
     },
     setSecClassify:function (data) {
-        // this.classifyForm.secClassify = data
-        console.log(this.classifyForm['secClassify'],11111)
+      this.classifyForm.secClassify = data
+      console.log(this.classifyForm['secClassify'],11111, typeof data)
     },
     removeImg: function(file, files) {
       this.removeList = file["url"];
@@ -199,8 +203,15 @@ export default {
         });
         this.setAdd(false);
       });
-    }
-  }
+    },
+   
+  },
+  // watch: {
+  //   'classifyForm.firstClassify': function(){
+  //   //  this.classifyForm.secClassify = ""
+    
+  //   }
+  // }
 };
 </script>
 <style>
