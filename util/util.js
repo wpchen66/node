@@ -115,6 +115,7 @@ export function saveSecClass (Classify, classifyInfo, imgUrl,callback ,superior)
 export function saveTirClass (Classify, classifyInfo, imgUrl,callback, superior) {
   let {name, mobilename, sort, isShow, color, secClassify} = classifyInfo;
   const firkind = new Classify({
+    secClssifyId: secClassify,
     name,
     mobilename,
     sort,

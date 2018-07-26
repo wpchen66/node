@@ -83,12 +83,13 @@ Vue.use(Upload);
 Vue.use(Dialog);
 Vue.use(Button);
 export default {
-  props:{
+  props: {
     setAdd: Function
   },
   data() {
     return {
       classifyForm: {
+        id: "",
         name: "",
         mobilename: "",
         firstClassify: "",
@@ -114,20 +115,52 @@ export default {
       secClass: []
     };
   },
-  created(){
-    let classifyInfo = this.$store.state.classifyInfo
-    if(classifyInfo){
+  created() {
+    let classifyInfo = this.$store.state.classifyInfo;
+    // id=""
+    if (classifyInfo) {
       this.classifyForm = {
         name: classifyInfo.name,
         sort: classifyInfo.sort,
         mobilename: classifyInfo.mobilename,
         isShow: classifyInfo.isShow,
-        color: classifyInfo.color
+        color: classifyInfo.color,
+        id: classifyInfo["_id"]
+      };
+      if (classifyInfo.level === 1) {
+        this.$set(this.classifyForm, "firstClassify", classifyInfo["_id"]);
+      } else if (classifyInfo.level === 2) {
+        this.$http({
+          type: "GET",
+          url: "/api/getSecClassify",
+          params: { firstClassify: classifyInfo.firClssifyId }
+        }).then(data => {
+          this.secClass = data.data.data;
+        });
+        this.$set(this.classifyForm, "secClassify", classifyInfo["_id"]);
+        this.$set(
+          this.classifyForm,
+          "firstClassify",
+          classifyInfo.firClssifyId
+        );
+      } else if (classifyInfo.level === 3) {
+        this.$http({
+          type: "GET",
+          url: "/api/getSecClassify",
+          params: { firstClassify: classifyInfo.firClssifyId }
+        }).then(data => {
+          this.secClass = data.data.data;
+        });
+        this.$set(this.classifyForm, "tirClassify", classifyInfo["_id"]);
+        this.$set(this.classifyForm, "secClassify", classifyInfo.secClssifyId);
       }
-      if(classifyInfo.pic){
-        this.uploadList.push(classifyInfo.pic)
+
+      if (classifyInfo.pic) {
+        let obj = { url: classifyInfo.pic };
+        this.uploadList.push(obj);
+        // this.uploadList.push(classifyInfo.pic)
+        console.log(typeof this.uploadList);
       }
-      
     }
   },
   mounted() {
@@ -143,25 +176,24 @@ export default {
   },
   methods: {
     getSecClassify: function(data) {
-      console.log(this.classifyForm.secClassify)
+      console.log(this.classifyForm.secClassify);
       // if(!this.classifyForm.firstClassify){
       //   return
       // }
-      this.$set(this.classifyForm, 'secClassify', "")
+      this.$set(this.classifyForm, "secClassify", "");
       this.secClass = [];
-      console.log(this.classifyForm.secClassify)
+      console.log(this.classifyForm.secClassify);
       this.$http({
         type: "GET",
         url: "/api/getSecClassify",
-        params: {firstClassify: this.classifyForm.firstClassify}
+        params: { firstClassify: this.classifyForm.firstClassify }
       }).then(data => {
-        
         this.secClass = data.data.data;
       });
     },
-    setSecClassify:function (data) {
-      this.classifyForm.secClassify = data
-      console.log(this.classifyForm['secClassify'],11111, typeof data)
+    setSecClassify: function(data) {
+      this.classifyForm.secClassify = data;
+      console.log(this.classifyForm["secClassify"], 11111, typeof data);
     },
     removeImg: function(file, files) {
       this.removeList = file["url"];
@@ -175,45 +207,69 @@ export default {
       return false;
     },
     onSubmit: function() {
-    let loadingInstance = Loading.service({
+      let loadingInstance = Loading.service({
         text: "正在提交",
         target: "#addClassify"
-      })
-      this.upload = new FormData();
-      new Promise((resolve, reject) => {
-        this.$refs.uploadfile.submit();
-        resolve();
-      }).then(data => {
-        this.from = JSON.stringify(this.classifyForm);
-        this.upload.append("form", this.from);
-        console.log(this.upload);
-        this.$http({
-          method: "POST",
-          url: "/api/addClassify",
-          data: this.upload
-        }).then(res => {
-          this.$nextTick(()=>{
-            loadingInstance.close();
-            Message.success({
-              message: res.data.message
-            })
-          })
-          console.log(res);
-          this.index = 0;
-        });
-        this.setAdd(false);
       });
-    },
-   
-  },
+      this.upload = new FormData();
+      if (!this.classifyForm.id) {
+        new Promise((resolve, reject) => {
+          this.$refs.uploadfile.submit();
+          resolve();
+        }).then(data => {
+          this.from = JSON.stringify(this.classifyForm);
+          this.upload.append("form", this.from);
+          console.log(this.upload);
+          this.$http({
+            method: "POST",
+            url: "/api/addClassify",
+            data: this.upload
+          }).then(res => {
+            this.$nextTick(() => {
+              loadingInstance.close();
+              Message.success({
+                message: res.data.message
+              });
+            });
+            console.log(res);
+            this.index = 0;
+          });
+          this.setAdd(false);
+        });
+      } else {
+        new Promise((resolve, reject) => {
+          this.$refs.uploadfile.submit();
+          resolve();
+        }).then(data => {
+          this.from = JSON.stringify(this.classifyForm);
+          this.upload.append("form", this.from);
+          console.log(this.upload);
+          this.$http({
+            method: "POST",
+            url: "/api/updatefirClassify",
+            data: this.upload
+          }).then(res => {
+            this.$nextTick(() => {
+              loadingInstance.close();
+              Message.success({
+                message: res.data.message
+              });
+            });
+            console.log(res);
+            this.index = 0;
+          });
+          this.setAdd(false);
+        });
+      }
+    }
+  }
   // watch: {
   //   'classifyForm.firstClassify': function(){
   //   //  this.classifyForm.secClassify = ""
-    
+
   //   }
   // }
 };
 </script>
 <style>
 </style>
-

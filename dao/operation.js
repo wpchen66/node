@@ -447,3 +447,10 @@ export function getTirClassify(id, callback) {
     callback(obj)
   })
 }
+
+export function updatefirClassify(req, callback){
+  let form = new formidable.IncomingForm()
+  form.parse(req, function (err, fields, files){
+    console.log(fields, files)
+  })
+}

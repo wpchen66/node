@@ -90,3 +90,9 @@ export function getTirClassify(req, res){
   }
   db.getTirClassify(id, callback)
 }
+export function updatefirClassify(req, res){
+  let callback = (data) => {
+    res.send(data)
+  }
+  db.updatefirClassify(req, callback)
+}

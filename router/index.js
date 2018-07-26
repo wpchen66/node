@@ -15,4 +15,5 @@ router.post('/addClassify', route.addClassify)
 router.get('/getFirClassify', route.getFirClassify)
 router.get('/getSecClassify', route.getSecClassify)
 router.get('/getTirClassify', route.getTirClassify)
+router.post('/updatefirClassify', route.updatefirClassify)
 export default router

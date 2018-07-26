@@ -15,6 +15,7 @@ export default {
   data() {
     return {
       data: [],
+      firstClassify: '',
       defaultProps: {
         children: "children",
         label: "label"
@@ -28,10 +29,12 @@ export default {
     }).then(res => {
       let data = res.data.data;
       data.forEach((item, index) => {
+        let info = item;
+        info.level = 1;
         let obj = {
           label: item.name,
           id: item["_id"],
-          info: item
+          info
         };
         this.data.push(obj);
       });
@@ -58,6 +61,7 @@ export default {
             obj.id = item["_id"];
             obj.label = item["name"];
            obj.info = item
+           obj.info.level =2
             secList.push(obj);
           });
           this.$refs.tree.updateKeyChildren(val.id, secList);
@@ -76,6 +80,7 @@ export default {
             obj.id = item["_id"];
             obj.label = item["name"];
             obj.info = item
+            obj.info.level = 3
             secList.push(obj);
           });
           this.$refs.tree.updateKeyChildren(val.id, secList);
@@ -106,6 +111,7 @@ export default {
       );
     },
     getNode: function(data){
+      console.log(data.info)
       this.$store.dispatch('setClassifyInfo', data.info)
       this.setAdd(true)
     }
