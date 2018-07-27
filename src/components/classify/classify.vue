@@ -67,6 +67,7 @@ export default {
           this.$refs.tree.updateKeyChildren(val.id, secList);
         });
       } else if (Node.level === 2) {
+        
         this.$http({
           type: "GET",
           url: "/api/getTirClassify",
@@ -80,9 +81,11 @@ export default {
             obj.id = item["_id"];
             obj.label = item["name"];
             obj.info = item
-            obj.info.level = 3
+            obj.info.level = 3,
+            obj.info.firClssifyId =  Node.data.info.firClssifyId
             secList.push(obj);
           });
+          console.log()
           this.$refs.tree.updateKeyChildren(val.id, secList);
         });
       }

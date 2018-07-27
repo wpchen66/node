@@ -416,7 +416,7 @@ export function getSecClassify(id, callback) {
   // secClass.findById('5b557ff9b6aa76268c4bf4f2').populate('firClssifyId').exec(function(err, data){
   //   console.log(data,11111,data.secClssifyId)
   // })
-  if(!id){
+  if (!id) {
     let obj = {
       success: true,
       data: []
@@ -448,9 +448,122 @@ export function getTirClassify(id, callback) {
   })
 }
 
-export function updatefirClassify(req, callback){
+export function updatefirClassify(req, callback) {
   let form = new formidable.IncomingForm()
-  form.parse(req, function (err, fields, files){
-    console.log(fields, files)
+  form.parse(req, function (err, fields, files) {
+    const classifyInfo = JSON.parse(fields.form);
+    console.log(classifyInfo)
+    if (classifyInfo.level === 1) {
+      firClass.findById(classifyInfo.id, function (err, data) {
+        if(!classifyInfo.firstClassify){
+          data.name = classifyInfo.name
+          data.color = classifyInfo.color;
+          data.sort = classifyInfo.sort;
+          data.mobilename = classifyInfo.mobilename
+          let obj = {
+            success: true,
+            message: '修改成功'
+          }
+          callback(obj)
+          return
+        }
+        if (data.secClssifyId.length) {
+          secClass.find({
+            _id: {
+              $in: data.secClssifyId
+            }
+          }).exec().then(data => {
+            console.log(data, 1221)
+
+            data.forEach(function (item) {
+              console.log(item.tirClssifyId.length, classifyInfo.firClassify, 121)
+              if (item.tirClssifyId.length && classifyInfo.firstClassify) {
+                console.log(1)
+                let obj = {
+                  success: true,
+                  message: '分类最多只能三级'
+                }
+                callback(obj)
+                return
+              } else if (!item.tirClssifyId.length && classifyInfo.firstClassify) {
+                console.log(2)
+                if (classifyInfo.secClassify) {
+                  let obj = {
+                    success: true,
+                    message: '分类最多只能三级'
+                  }
+                  callback(obj)
+                  return
+                } else {
+                  let addSecClass = new secClass({
+                    firClssifyId: classifyInfo.firstClassify,
+                    name: classifyInfo.name,
+                    mobilename: classifyInfo.mobilename,
+                    isShow: classifyInfo.isShow,
+                    sort: classifyInfo.sort,
+                    color: classifyInfo.color,
+                    tirClssifyId: []
+                  })
+                  addSecClass.save(function (err, data) {
+                    if (err) {
+                      console.error(err)
+                    }
+                    let id = data['_id']
+                    tirClass.create({
+                      secClssifyId: data['_id'],
+                      name: item.name,
+                      mobilename: item.mobilename,
+                      isShow: item.isShow,
+                      sort: item.sort,
+                      color: item.color,
+                      pic: item.pic
+                    }, function (err, tirClassData) {
+                      secClass.findById(id, function (err, secClassData) {
+                        if (err) {
+                          console.log(err)
+                        }
+                        secClassData.tirClssifyId.push(tirClassData['_id'])
+                        secClassData.save()
+                      })
+                      console.log(data, '修改成功')
+                    })
+                    secClass.remove({
+                      _id: item['_id']
+                    }, function (err, data) {
+                      if (err) {
+                        console.error(err)
+                      }
+                      console.log(item.name + '删除成功')
+                    })
+
+
+                    firClass.findById(classifyInfo.firstClassify, function (err, firClassData) {
+                      if (err) {
+                        console.error(err)
+                      }
+                      firClassData.secClssifyId.push(id)
+                      firClassData.save()
+                    })
+                  })
+                  firClass.remove({
+                    _id: classifyInfo['id']
+                  }, function (err, res) {
+                    if (err) {
+                      console.error(err)
+                    }
+                    console.log(res + '删除成功')
+                  })
+                }
+              }
+            })
+          })
+        }
+      })
+    }
+    if (classifyInfo.level === 2) {
+      secClass.findById(classifyInfo.id, function(err, data){
+        
+      })
+    }
   })
 }

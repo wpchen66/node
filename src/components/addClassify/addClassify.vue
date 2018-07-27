@@ -125,10 +125,12 @@ export default {
         mobilename: classifyInfo.mobilename,
         isShow: classifyInfo.isShow,
         color: classifyInfo.color,
-        id: classifyInfo["_id"]
+        id: classifyInfo["_id"],
+        level: classifyInfo.level
       };
       if (classifyInfo.level === 1) {
-        this.$set(this.classifyForm, "firstClassify", classifyInfo["_id"]);
+        // this.$set(this.classifyForm, "firstClassify", classifyInfo["_id"]);
+      
       } else if (classifyInfo.level === 2) {
         this.$http({
           type: "GET",
@@ -137,22 +139,27 @@ export default {
         }).then(data => {
           this.secClass = data.data.data;
         });
-        this.$set(this.classifyForm, "secClassify", classifyInfo["_id"]);
+        // this.$set(this.classifyForm, "secClassify", classifyInfo["_id"]);
         this.$set(
           this.classifyForm,
           "firstClassify",
           classifyInfo.firClssifyId
         );
       } else if (classifyInfo.level === 3) {
+        console.log(classifyInfo)
         this.$http({
           type: "GET",
           url: "/api/getSecClassify",
           params: { firstClassify: classifyInfo.firClssifyId }
         }).then(data => {
+          console.log(data,2222
+          )
           this.secClass = data.data.data;
         });
-        this.$set(this.classifyForm, "tirClassify", classifyInfo["_id"]);
+        console.log(111)
+        // this.$set(this.classifyForm, "tirClassify", classifyInfo["_id"]);
         this.$set(this.classifyForm, "secClassify", classifyInfo.secClssifyId);
+         this.$set(this.classifyForm, "firstClassify", classifyInfo.firClssifyId);
       }
 
       if (classifyInfo.pic) {
@@ -237,6 +244,9 @@ export default {
           this.setAdd(false);
         });
       } else {
+         if(this.removeList.length){
+        this.classifyForm.removeList = this.removeList
+      }
         new Promise((resolve, reject) => {
           this.$refs.uploadfile.submit();
           resolve();
