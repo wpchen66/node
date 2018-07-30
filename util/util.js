@@ -146,3 +146,46 @@ export function saveTirClass (Classify, classifyInfo, imgUrl,callback, superior)
     }
   })
 }
+
+export function saveHandle(obj, callback){
+ obj.save(function(err, data){
+  if(err){
+    console.error(err)
+  }
+  console.log(data)
+  if(callback){
+    callback()
+  }
+ })
+}
+
+export function deleteHandle(model, obj, callback){
+  model.remove(obj, function(err, data){
+    console.log(data)
+    if(callback){
+      callback()
+    }
+  })
+}
+
+export function findbyId(model,id ,callback){
+  model.findById(id, function(err, data){
+    if(err){
+      console.error(err)
+    }
+    callback(data)
+  })
+}
+
+export function createClass(model, config, callback){
+  model.create(config, function(err, data){
+    if(err){
+      console.error(err)
+    }
+    console.log(`创建${data}成功`)
+    if(callback){
+      console.log(123)
+      callback(data)
+    }
+  })
+}

@@ -14,8 +14,15 @@ import {
   createDir,
   saveClass,
   saveSecClass,
-  saveTirClass
+  saveTirClass,
+  saveHandle,
+  deleteHandle,
+  findbyId,
+  createClass
 } from '../util/util.js'
+import {
+  rejects
+} from 'assert';
 const fs = require('fs');
 const formidable = require('formidable');
 const path = require('path')
@@ -453,117 +460,334 @@ export function updatefirClassify(req, callback) {
   form.parse(req, function (err, fields, files) {
     const classifyInfo = JSON.parse(fields.form);
     console.log(classifyInfo)
-    if (classifyInfo.level === 1) {
-      firClass.findById(classifyInfo.id, function (err, data) {
-        if(!classifyInfo.firstClassify){
-          data.name = classifyInfo.name
-          data.color = classifyInfo.color;
-          data.sort = classifyInfo.sort;
-          data.mobilename = classifyInfo.mobilename
-          let obj = {
-            success: true,
-            message: '修改成功'
-          }
-          callback(obj)
-          return
+    let imgUrl = "";
+    const date = new Date()
+    let model;
+    new Promise((resolve, reject) => {
+      //处理图片
+      if (classifyInfo.removeList) {
+        if (classifyInfo.level === 1) {
+          model = firClass
+        } else if (classifyInfo.level === 2) {
+          model = secClass
+        } else if (classifyInfo.level === 3) {
+          model = tirClass
         }
-        if (data.secClssifyId.length) {
-          secClass.find({
-            _id: {
-              $in: data.secClssifyId
-            }
-          }).exec().then(data => {
-            console.log(data, 1221)
+        model.findById(classifyInfo.id, function (err, modelData) {
+          modelData.pic = ''
+          saveHandle(modelData)
+        })
+      }
 
-            data.forEach(function (item) {
-              console.log(item.tirClssifyId.length, classifyInfo.firClassify, 121)
-              if (item.tirClssifyId.length && classifyInfo.firstClassify) {
-                console.log(1)
-                let obj = {
-                  success: true,
-                  message: '分类最多只能三级'
-                }
-                callback(obj)
-                return
-              } else if (!item.tirClssifyId.length && classifyInfo.firstClassify) {
-                console.log(2)
-                if (classifyInfo.secClassify) {
+      if (Object.values(files).length) {
+        let imgPath = path.resolve('static/images/' + date.getFullYear() + '/' + (date.getMonth() + 1) + '/' + date.getDate())
+        let imgList = ""
+        const imgFile = files['0']
+        createDir(date)
+        fs.readFile(imgFile.path, function (err, data) {
+          if (err) {
+            console.error(err)
+            return
+          }
+          const id = uuid()
+          let type = imgFile.type.split('/')[1]
+          fs.writeFile(imgPath + '/' + id + '.' + type, data, function (err, res) {
+            if (err) {
+              console.error(err)
+            }
+            imgUrl = `http://${serverUrl}/static/images/${date.getFullYear()}/${date.getMonth()+1}/${date.getDate()}/${id}.${type}`
+            resolve(imgUrl)
+          })
+        })
+      } else {
+        //处理图片
+        if (classifyInfo.level === 1) {
+          model = firClass
+        } else if (classifyInfo.level === 2) {
+          model = secClass
+        } else if (classifyInfo.level === 3) {
+          model = tirClass
+        }
+        model.findById(classifyInfo.id, function (err, modelData) {
+          imgUrl = modelData.pic
+          resolve(imgUrl)
+        })
+      }
+    }).then(imgUrl => {
+      console.log(imgUrl, 111111, classifyInfo)
+      if (classifyInfo.level === 1) {
+        firClass.findById(classifyInfo.id, function (err, data) {
+          if (!classifyInfo.firstClassify) {
+            data.name = classifyInfo.name
+            data.color = classifyInfo.color;
+            data.sort = classifyInfo.sort;
+            data.mobilename = classifyInfo.mobilename
+            let obj = {
+              success: true,
+              message: '修改成功'
+            }
+            callback(obj)
+            return
+          }
+          if (data.secClssifyId.length) {
+            secClass.find({
+              _id: {
+                $in: data.secClssifyId
+              }
+            }).exec().then(data => {
+              console.log(data, 1221)
+
+              data.forEach(function (item) {
+                console.log(item.tirClssifyId.length, classifyInfo.firClassify, 121)
+                if (item.tirClssifyId.length && classifyInfo.firstClassify) {
+                  console.log(1)
                   let obj = {
                     success: true,
                     message: '分类最多只能三级'
                   }
                   callback(obj)
                   return
-                } else {
-                  let addSecClass = new secClass({
-                    firClssifyId: classifyInfo.firstClassify,
-                    name: classifyInfo.name,
-                    mobilename: classifyInfo.mobilename,
-                    isShow: classifyInfo.isShow,
-                    sort: classifyInfo.sort,
-                    color: classifyInfo.color,
-                    tirClssifyId: []
-                  })
-                  addSecClass.save(function (err, data) {
-                    if (err) {
-                      console.error(err)
+                } else if (!item.tirClssifyId.length && classifyInfo.firstClassify) {
+                  console.log(2)
+                  if (classifyInfo.secClassify) {
+                    let obj = {
+                      success: true,
+                      message: '分类最多只能三级'
                     }
-                    let id = data['_id']
-                    tirClass.create({
-                      secClssifyId: data['_id'],
-                      name: item.name,
-                      mobilename: item.mobilename,
-                      isShow: item.isShow,
-                      sort: item.sort,
-                      color: item.color,
-                      pic: item.pic
-                    }, function (err, tirClassData) {
-                      secClass.findById(id, function (err, secClassData) {
-                        if (err) {
-                          console.log(err)
-                        }
-                        secClassData.tirClssifyId.push(tirClassData['_id'])
-                        secClassData.save()
+                    callback(obj)
+                    return
+                  } else {
+                    let addSecClass = new secClass({
+                      firClssifyId: classifyInfo.firstClassify,
+                      name: classifyInfo.name,
+                      mobilename: classifyInfo.mobilename,
+                      isShow: classifyInfo.isShow,
+                      sort: classifyInfo.sort,
+                      color: classifyInfo.color,
+                      tirClssifyId: [],
+                      pic: imgUrl
+                    })
+                    addSecClass.save(function (err, data) {
+                      if (err) {
+                        console.error(err)
+                      }
+                      let id = data['_id']
+                      tirClass.create({
+                        secClssifyId: data['_id'],
+                        name: item.name,
+                        mobilename: item.mobilename,
+                        isShow: item.isShow,
+                        sort: item.sort,
+                        color: item.color,
+                        pic: item.pic
+                      }, function (err, tirClassData) {
+                        secClass.findById(id, function (err, secClassData) {
+                          if (err) {
+                            console.log(err)
+                          }
+                          secClassData.tirClssifyId.push(tirClassData['_id'])
+                          secClassData.save()
+                        })
+                        console.log(data, '修改成功')
                       })
-                      console.log(data, '修改成功')
+                      secClass.remove({
+                        _id: item['_id']
+                      }, function (err, data) {
+                        if (err) {
+                          console.error(err)
+                        }
+                        console.log(item.name + '删除成功')
+                      })
+
+
+                      firClass.findById(classifyInfo.firstClassify, function (err, firClassData) {
+                        if (err) {
+                          console.error(err)
+                        }
+                        firClassData.secClssifyId.push(id)
+                        firClassData.save()
+                      })
                     })
-                    secClass.remove({
-                      _id: item['_id']
-                    }, function (err, data) {
+                    firClass.remove({
+                      _id: classifyInfo['id']
+                    }, function (err, res) {
                       if (err) {
                         console.error(err)
                       }
-                      console.log(item.name + '删除成功')
+                      console.log(res + '删除成功')
                     })
-
-
-                    firClass.findById(classifyInfo.firstClassify, function (err, firClassData) {
-                      if (err) {
-                        console.error(err)
-                      }
-                      firClassData.secClssifyId.push(id)
-                      firClassData.save()
-                    })
-                  })
-                  firClass.remove({
-                    _id: classifyInfo['id']
-                  }, function (err, res) {
-                    if (err) {
-                      console.error(err)
-                    }
-                    console.log(res + '删除成功')
-                  })
+                  }
                 }
+              })
+            })
+          }
+        })
+      }
+      if (classifyInfo.level === 2) {
+        secClass.findById(classifyInfo.id, function (err, secClassData) {
+          console.log(secClassData)
+          if(!classifyInfo.firstClassify){
+            let obj = {
+              name: classifyInfo.name,
+              mobilename: classifyInfo.mobilename,
+              sort: classifyInfo.sort,
+              color: classifyInfo.color,
+              isShow: classifyInfo.isShow,
+              pic: imgUrl,
+              secClssifyId: []
+            }
+            // let createCall = function(data){
+            //   console.log(`${data}why`)
+            //   if(secClassData.tirClssifyId.length){
+            //     secClassData.tirClssifyId.forEach(function(item, index){
+            //       let findCall = function(findData){
+            //         let obj = {
+            //           name: findData.name,
+            //           mobilename: findData.mobilename,
+            //           sort: findData.sort,
+            //           color: findData.color,
+            //           isShow: findData.isShow,
+            //           pic: findData.pic,
+            //           firClssifyId: data['_id']
+            //         }
+            //         let createCall = function(creatData){
+            //           data.secClssifyId.push(creatData['_id'])
+            //           saveHandle(data)
+            //           let deleteCall = function(data){
+            //             console.log(JSON.stringify(data)+'删除成功')
+            //           }
+            //           deleteHandle(tirClass, item['_id'], deleteCall)
+            //         }
+            //         createClass(secClass, obj, createCall)
+            //       }
+            //       findbyId(tirClass,item['_id'], findCall)
+            //     })
+            //   }
+            // }
+            createClass(firClass, obj, function(data){
+              console.log(`${data}why`)
+              if(secClassData.tirClssifyId.length){
+                secClassData.tirClssifyId.forEach(function(item, index){
+                  let findCall = function(findData){
+                    let obj = {
+                      name: findData.name,
+                      mobilename: findData.mobilename,
+                      sort: findData.sort,
+                      color: findData.color,
+                      isShow: findData.isShow,
+                      pic: findData.pic,
+                      firClssifyId: data['_id']
+                    }
+                    let createCall = function(creatData){
+                      data.secClssifyId.push(creatData['_id'])
+                      saveHandle(data)
+                      let deleteCall = function(data){
+                        console.log(JSON.stringify(data)+'删除成功')
+                      }
+                      deleteHandle(tirClass, item['_id'], deleteCall)
+                    }
+                    createClass(secClass, obj, createCall)
+                  }
+                  findbyId(tirClass,item['_id'], findCall)
+                })
               }
             })
-          })
-        }
-      })
-    }
-    if (classifyInfo.level === 2) {
-      secClass.findById(classifyInfo.id, function(err, data){
-        
-      })
-    }
+            return
+          }
+
+          if (!classifyInfo.secClassify&& classifyInfo.firstClassify) {
+            secClassData.name = classifyInfo.name;
+            secClassData.sort = classifyInfo.sort
+            secClassData.mobilename = classifyInfo.mobilename
+            secClassData.color = classifyInfo.color
+            secClassData.pic = imgUrl
+            secClassData.isShow = classifyInfo.isShow
+              if(classifyInfo.firstClassify!==secClassData.firClssifyId){
+                let resCall = function(data){
+                  secClassData.firClssifyId = classifyInfo.firstClassify
+                  data.secClssifyId.push(secClassData.id)
+                  saveHandle(data)
+                  let changeInfo = () => {
+                    let obj = {
+                      success: true,
+                      message: '修改成功'
+                    }
+                    callback(obj)
+                  }
+                  saveHandle(secClassData, changeInfo)
+                }
+                let changeId = function(data){
+                  data.secClssifyId = data.secClssifyId.filter(function(item){
+                      console.log(item, classifyInfo.id)
+                      return item != secClassData.id
+                  })
+                  saveHandle(data)
+                  // data.secClssifyId.forEach(function(item, index){
+                  //   if(item === classifyInfo.id){
+                  //     data.secClssifyId.s
+                  //   }
+                  // })
+                }
+                findbyId(firClass, secClassData.firClssifyId, changeId)
+                findbyId(firClass, classifyInfo.firstClassify, resCall)
+               
+              }else{
+                let resCall = () => {
+                  let obj = {
+                    success: true,
+                    message: '修改成功'
+                  }
+                  callback(obj)
+                }
+                saveHandle(secClassData, resCall)
+              }
+            return
+          }
+          if (secClassData.tirClssifyId.length && classifyInfo.secClassify) {
+            let obj = {
+              success: true,
+              message: '分类最多只能三级'
+            }
+            callback(obj)
+            return
+          } else if (!secClassData.tirClssifyId.length && classifyInfo.secClassify) {
+            let obj = {
+              name: classifyInfo.name,
+              mobilename: classifyInfo.mobilename,
+              sort: classifyInfo.sort,
+              color: classifyInfo.color,
+              isShow: classifyInfo.isShow,
+              secClssifyId: classifyInfo.secClassify,
+              pic: imgUrl
+            }
+            tirClass.create(obj, function (err, tirClassData) {
+              if (err) {
+                console.error(err)
+              }
+              let changeId = function(changeData){
+                changeData.secClssifyId = changeData.secClssifyId.filter(function(item){
+                  return item != secClassData['_id']
+                })
+                saveHandle(changeData)
+              }
+              findbyId(firClass, secClassData.firClssifyId, changeId)
+              secClass.findById(classifyInfo.secClassify, function (err, secClassData) {
+                secClassData.tirClssifyId.push(tirClassData['_id'])
+                let callback = function () {
+                  deleteHandle(secClass, {
+                    _id: classifyInfo.id
+                  })
+                }
+                saveHandle(secClassData, callback)
+              })
+            })
+            return
+          }
+          
+        })
+      }
+    })
+
+
   })
 }
