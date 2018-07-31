@@ -38,33 +38,28 @@
       width="100">
       <template slot-scope="scope">
         <el-button @click="handleClick(scope.row)" type="text" size="small">修改</el-button>
-        <el-button type="text" size="small">删除</el-button>
+        <el-button  @click="handleDele(scope.row)" type="text" size="small">删除</el-button>
       </template>
     </el-table-column>
   </el-table>
   </div>
 </template>
 <script>
-import Vue from 'vue'
-import {
-  Table,
-  TableColumn,
-  Button,
-  Message
-} from 'element-ui'
-Vue.use(Table)
-Vue.use(TableColumn)
-Vue.use(Button)
+import Vue from "vue";
+import { Table, TableColumn, Button, Message } from "element-ui";
+Vue.use(Table);
+Vue.use(TableColumn);
+Vue.use(Button);
 export default {
-  props:{
-    setAdd:{
+  props: {
+    setAdd: {
       type: Function
     }
   },
   data() {
     return {
       goodsList: null,
-      tableData: [],
+      tableData: []
     };
   },
   mounted() {
@@ -72,21 +67,44 @@ export default {
       url: "/api/getGoodsList",
       method: "GET"
     }).then(data => {
-      if(data.data.token===0){
+      if (data.data.token === 0) {
         // Message.error({
         //   message: data.data.message
         // })
-        this.$router.push('/login')
+        this.$router.push("/login");
       }
-      const goodsList = data.data.data
-      this.tableData = goodsList
+      const goodsList = data.data.data;
+      this.tableData = goodsList;
     });
-    
   },
   methods: {
-    handleClick: function(ev){
-      this.setAdd(true)
-      this.$store.dispatch('setGoodsInfo', ev)
+    handleClick: function(ev) {
+      this.setAdd(true);
+      this.$store.dispatch("setGoodsInfo", ev);
+    },
+    handleDele: function(ev) {
+      this.$http({
+        type: "GET",
+        url: "/api/removeGoods",
+        params: {
+          id: ev["_id"]
+        }
+      }).then(res => {
+        Message.success({ message: `${ev.name}${res.data.message}` });
+        this.$http({
+          url: "/api/getGoodsList",
+          method: "GET"
+        }).then(data => {
+          if (data.data.token === 0) {
+            // Message.error({
+            //   message: data.data.message
+            // })
+            this.$router.push("/login");
+          }
+          const goodsList = data.data.data;
+          this.tableData = goodsList;
+        });
+      });
     }
   }
 };

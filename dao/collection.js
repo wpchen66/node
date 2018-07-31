@@ -55,11 +55,19 @@ let goodsSchema = new mogoose.Schema({
   },
   pic: {
     type: [String, Array]
+  },
+  firClssifyId:{
+    type: String
+  },
+  secClssifyId:{
+    type: String
+  },
+  tirClssifyId:{
+    type: String
   }
 })
 
 let firClssifySchema = new mogoose.Schema({
-  _id: Schema.Types.ObjectId,
   name: {
     type: String
   },

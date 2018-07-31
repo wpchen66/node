@@ -26,6 +26,7 @@ export default {
   methods: {
     addHandle: function(){
       this.addShow = true
+      this.$store.dispatch('setClassifyInfo', null)
     },
     setAdd: function(style){
       this.addShow = style

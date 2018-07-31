@@ -163,7 +163,7 @@ export function deleteHandle(model, obj, callback){
   model.remove(obj, function(err, data){
     console.log(data)
     if(callback){
-      callback()
+      callback(data)
     }
   })
 }
@@ -185,6 +185,19 @@ export function createClass(model, config, callback){
     console.log(`创建${data}成功`)
     if(callback){
       console.log(123)
+      callback(data)
+    }
+  })
+}
+
+export function createNew (Model, config, callback) {
+  let newModel = new Model(config)
+  newModel.save(function(err, data){
+    if(err){
+      console.error(err)
+    }
+    console.log(data,11111111111111111, callback)
+    if(callback){
       callback(data)
     }
   })

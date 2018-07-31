@@ -62,6 +62,14 @@ export function updataGoods(req, res){
   db.updataGoods(req,callback)
 }
 
+export function removeGoods(req, res){
+  let id = req.query.id
+  let callback = function(data){
+    res.send(data)
+  }
+  db.removeGoods(id, callback)
+}
+
 export function addClassify(req, res){
   let callback =  (data) => {
     res.send(data)
@@ -95,4 +103,8 @@ export function updatefirClassify(req, res){
     res.send(data)
   }
   db.updatefirClassify(req, callback)
+}
+
+export function removeClassify(req, res){
+  console.log(req)
 }

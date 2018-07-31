@@ -2,18 +2,44 @@
   <div id="addGoods">
     <h2>添加商品</h2>
     <div>
-      <el-form ref="form" :model="form"  label-width="120px">
-        <el-form-item label="商品名称">
+      <el-form ref="form" :model="form" :rules="rules"  label-width="120px">
+        <el-form-item label="商品名称" prop="name">
           <el-input class="input-width"  v-model="form.name"></el-input>
         </el-form-item>
         <el-form-item  label="商品描述">
           <el-input class="input-width" type="textarea" v-model="form.des"></el-input>
         </el-form-item>
-        <el-form-item label="商品价格">
-          <el-input class="input-width" v-model="form.price"></el-input>
+        <el-form-item label="商品分类">
+            <el-select @change="chooseFir" v-model="form.firstClassify">
+               <el-option label="选择顶级分类" value="">
+                </el-option>
+               <template v-if="firClass.length">
+                  <el-option v-for="item in firClass" :key="item['_id']" :label="item.name" :value="item['_id']">
+                  </el-option>
+                </template> 
+            </el-select>
+            <el-select @change="chooseSec"  v-model="form.secClassify">
+               <el-option label="选择二级分类" value="">
+                 </el-option>
+               <template v-if="secClass.length">
+                  <el-option v-for="item in secClass" :key="item['_id']" :label="item.name" :value="item['_id']">
+                  </el-option>
+                </template> 
+            </el-select>
+            <el-select v-model="form.tirClassify">
+               <el-option label="选择三级分类" value="">
+                </el-option>
+               <template v-if="tirClass.length">
+                  <el-option v-for="item in tirClass" :key="item['_id']" :label="item.name" :value="item['_id']">
+                  </el-option>
+                </template> 
+            </el-select>
         </el-form-item>
-        <el-form-item label="商品数量">
-          <el-input class="input-width" v-model="form.number"></el-input>
+        <el-form-item label="商品价格"  prop="price">
+          <el-input class="input-width" auto-complete="off" v-model.number="form.price"></el-input>
+        </el-form-item>
+        <el-form-item label="商品数量"  prop="number">
+          <el-input class="input-width" auto-complete="off"  v-model.number="form.number"></el-input>
         </el-form-item>
         <!--  -->
         <el-form-item  label="添加商品图片"></el-form-item>
@@ -45,13 +71,25 @@
 </template>
 <script>
 import Vue from "vue";
-import { Form, FormItem, Input, Button, Upload, Dialog } from "element-ui";
+import {
+  Form,
+  FormItem,
+  Input,
+  Button,
+  Upload,
+  Dialog,
+  Select,
+  Option,
+  Message
+} from "element-ui";
 Vue.use(Form);
 Vue.use(FormItem);
 Vue.use(Input);
 Vue.use(Button);
 Vue.use(Upload);
 Vue.use(Dialog);
+Vue.use(Select);
+Vue.use(Option);
 
 import Editor from "com/editor/editor";
 export default {
@@ -65,9 +103,12 @@ export default {
       form: {
         name: "",
         des: "",
-        price: null,
-        number: null,
-        id: null
+        price: 0,
+        number: 0,
+        id: null,
+        firstClassify: "",
+        secClassify: "",
+        tirClassify: ""
       },
       upload: {
         name: ""
@@ -79,6 +120,28 @@ export default {
       list: {},
       limit: 6,
       index: 0,
+      firClass: [],
+      secClass: [],
+      tirClass: [],
+      rules: {
+        name:[{
+          required: true,
+          message: '商品名不能为空',
+          trigger: 'blur'
+        }],
+        price: [{
+           required: true,
+          message: '价格只能填数字',
+          type: 'number',
+          trigger: 'blur'
+        }],
+        number: [{
+           required: true,
+          message: '数量只能填数字',
+          type: 'number',
+          trigger: 'blur'
+        }]
+      },
       editorSetting: {
         width: 1200,
         height: 500,
@@ -111,14 +174,30 @@ export default {
     };
   },
   created() {
-    console.log(this.$store.state.goodsInfo);
     const goodsInfo = this.$store.state.goodsInfo;
+    this.$http({
+      type: "GET",
+      url: "/api/getFirClassify"
+    }).then(res => {
+      console.log(res, 11111);
+      this.firClass = res.data.data;
+    });
+
     if (goodsInfo) {
       this.form.name = goodsInfo.name;
       this.form.des = goodsInfo.des;
       this.form.price = goodsInfo.price;
       this.form.number = goodsInfo.number;
       this.form.id = goodsInfo._id;
+      this.form.firstClassify = goodsInfo.firClssifyId
+      // this.form.secClassify = goodsInfo.secClssifyId
+      // this.form.tirClassify = goodsInfo.tirClssifyId
+      if(goodsInfo.secClssifyId){
+        this.initClass('/api/getSecClassify',{firstClassify:  goodsInfo.firClssifyId}, 'secClass')
+      }
+      if(goodsInfo.tirClssifyId){
+        this.initClass('/api/getTirClassify',{secClassify: goodsInfo.secClssifyId}, 'tirClass')
+      }
       goodsInfo.pic.forEach((item, index) => {
         let obj = {};
         const diot = item.substring(item.lastIndexOf("."));
@@ -129,9 +208,49 @@ export default {
         obj["url"] = item;
         this.uploadList.push(obj);
       });
+      this.$set(this.form, 'secClassify', goodsInfo.secClssifyId)
+       this.$set(this.form, 'tirClassify', goodsInfo.tirClssifyId)
     }
+
   },
   methods: {
+    initClass: function(url, data, obj){
+      this.$http({
+        url,
+        params: data,
+        type: 'GET'
+      }).then(res => {
+        // obj = res.data.data
+        this.$set(this, obj, res.data.data)
+        console.log(obj)
+      })
+    },
+    chooseFir: function() {
+      this.$http({
+        url: "/api/getSecClassify",
+        type: "GET",
+        params: {
+          firstClassify: this.form.firstClassify
+        }
+      }).then(res => {
+        console.log(res);
+        this.$set()
+        this.secClass = res.data.data;
+      });
+    },
+    chooseSec: function() {
+      console.log(1232)
+      this.$http({
+        url: "/api/getTirClassify",
+        type: "GET",
+        params: {
+          secClassify: this.form.secClassify
+        }
+      }).then(res => {
+        console.log(res);
+        this.tirClass = res.data.data;
+      });
+    },
     removeImg: function(file, files) {
       this.removeList.push(file["url"]);
       console.log(this.removeList, 22222);
@@ -149,10 +268,27 @@ export default {
       const des = this.form.des;
       const price = this.form.price;
       const number = this.form.number;
+      const firstClassify = this.form.firstClassify
       const id = this.form.id;
+      if(!name){
+        return
+      }
+      if(!price||isNaN(price)){
+        return
+      }
+       if(!number||isNaN(number)){
+        return
+      }
+      if(!firstClassify){
+        Message.error({
+          message: '请至少选择一种商品分类'
+        })
+        return
+      }
       if (this.removeList.length) {
         this.form.removeList = Object.assign([], this.removeList);
       }
+      
       if (!id) {
         this.upload = new FormData();
         new Promise((resolve, reject) => {

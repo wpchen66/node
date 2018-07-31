@@ -117,6 +117,13 @@ export default {
       console.log(data.info)
       this.$store.dispatch('setClassifyInfo', data.info)
       this.setAdd(true)
+    },
+    remove(node, data){
+      console.log(node, data)
+      this.$http({
+        type: 'GET',
+        url: '/api/removeClassify'
+      })
     }
   }
 };

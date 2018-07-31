@@ -18,7 +18,8 @@ import {
   saveHandle,
   deleteHandle,
   findbyId,
-  createClass
+  createClass,
+  createNew
 } from '../util/util.js'
 import {
   rejects
@@ -182,46 +183,77 @@ export function addGoods(req, callback) {
       console.error(err)
     }
     goods = JSON.parse(fields.form)
-    Object.values(files).forEach(function (item, index) {
-      // console.log(item)
-      fs.readFile(item.path, function (err, data) {
-        if (err) {
-          console.error(err)
-          return
-        }
-        const id = uuid()
-        let type = item.type.split('/')[1]
-        fs.writeFile(imgPath + '/' + id + '.' + type, data, function (err, data) {
+    console.log(goods)
+    if (Object.values(files).length) {
+      Object.values(files).forEach(function (item, index) {
+        fs.readFile(item.path, function (err, data) {
           if (err) {
             console.error(err)
+            return
           }
-          const imgUrl = 'http://' + serverUrl + '/static/images/' + date.getFullYear() + '/' + (date.getMonth() + 1) + '/' + date.getDate() + '/' + id + '.' + type
-          imgList.push(imgUrl)
-          if (index === Object.values(files).length - 1) {
-            const date = new Date()
-            const year = `${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}`
-            const time = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
-            const goodsInfo = new goodsModel({
-              time: time,
-              date: year,
-              name: goods.name,
-              des: goods.des,
-              price: goods.price,
-              number: goods.number,
-              pic: imgList
-            })
+          const id = uuid()
+          let type = item.type.split('/')[1]
+          fs.writeFile(imgPath + '/' + id + '.' + type, data, function (err, data) {
+            if (err) {
+              console.error(err)
+            }
+            const imgUrl = 'http://' + serverUrl + '/static/images/' + date.getFullYear() + '/' + (date.getMonth() + 1) + '/' + date.getDate() + '/' + id + '.' + type
+            imgList.push(imgUrl)
+            console.log(index, (Object.values(files).length - 1), 1231321313)
+            if (index === Object.values(files).length - 1) {
+              console.log(1)
+              const date = new Date()
+              const year = `${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}`
+              const time = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
+              const goodsInfo = new goodsModel({
+                time: time,
+                date: year,
+                name: goods.name,
+                des: goods.des,
+                price: goods.price,
+                number: goods.number,
+                pic: imgList,
+                firClssifyId: goods.firstClassify,
+                secClssifyId: goods.secClassify,
+                tirClssifyId: goods.tirClassify
+              })
 
-            goodsInfo.save(function (err, data) {
-              if (err) {
-                console.log(err)
-                return
-              }
-              console.log(data, '商品保存成功')
-            })
-          }
+              goodsInfo.save(function (err, data) {
+                if (err) {
+                  console.log(err)
+                  return
+                }
+                console.log(data, '商品保存成功')
+              })
+            }
+          })
         })
       })
-    })
+    } else {
+      const date = new Date()
+      const time = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
+      const year = `${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}`
+      const goodsInfo = new goodsModel({
+        time: time,
+        date: year,
+        name: goods.name,
+        des: goods.des,
+        price: goods.price,
+        number: goods.number,
+        pic: imgList,
+        firClssifyId: goods.firstClassify,
+        secClssifyId: goods.secClassify,
+        tirClssifyId: goods.tirClassify
+      })
+
+      goodsInfo.save(function (err, data) {
+        if (err) {
+          console.log(err)
+          return
+        }
+        console.log(data, '商品保存成功')
+      })
+    }
 
     // console.log(files)
     // let b = JSON.parse(files.upload)
@@ -304,7 +336,9 @@ export function updataGoods(req, callback) {
                 res.price = price
                 res.des = des
                 res.number = number
-                console.log(imgList, arr, 1212121211)
+                res.firClssifyId = goodsInfo.firstClassify,
+                res.secClssifyId = goodsInfo.secClassify,
+                res.tirClssifyId = goodsInfo.tirClassify
                 newarr = [...arr, ...imgList]
                 res.pic = newarr;
                 res.save(function (err, data) {
@@ -325,6 +359,9 @@ export function updataGoods(req, callback) {
         res.des = des
         res.number = number
         res.pic = arr;
+        res.firClssifyId = goodsInfo.firstClassify,
+        res.secClssifyId = goodsInfo.secClassify,
+        res.tirClssifyId = goodsInfo.tirClassify
         res.save(function (err, data) {
           if (err) {
             console.log(err)
@@ -341,6 +378,17 @@ export function updataGoods(req, callback) {
       // })
     })
   })
+}
+
+export function removeGoods(id, callback){
+  let removeGoodsInfo = function(data){
+    let obj = {
+      success: true,
+      message: `删除成功`
+    }
+    callback(obj)
+  }
+  deleteHandle(goodsModel, {'_id': id}, removeGoodsInfo)
 }
 
 export function addClassify(req, callback) {
@@ -626,8 +674,8 @@ export function updatefirClassify(req, callback) {
       if (classifyInfo.level === 2) {
         secClass.findById(classifyInfo.id, function (err, secClassData) {
           console.log(secClassData)
-          if(!classifyInfo.firstClassify){
-            let obj = {
+          if (!classifyInfo.firstClassify) {
+            let config = {
               name: classifyInfo.name,
               mobilename: classifyInfo.mobilename,
               sort: classifyInfo.sort,
@@ -636,39 +684,10 @@ export function updatefirClassify(req, callback) {
               pic: imgUrl,
               secClssifyId: []
             }
-            // let createCall = function(data){
-            //   console.log(`${data}why`)
-            //   if(secClassData.tirClssifyId.length){
-            //     secClassData.tirClssifyId.forEach(function(item, index){
-            //       let findCall = function(findData){
-            //         let obj = {
-            //           name: findData.name,
-            //           mobilename: findData.mobilename,
-            //           sort: findData.sort,
-            //           color: findData.color,
-            //           isShow: findData.isShow,
-            //           pic: findData.pic,
-            //           firClssifyId: data['_id']
-            //         }
-            //         let createCall = function(creatData){
-            //           data.secClssifyId.push(creatData['_id'])
-            //           saveHandle(data)
-            //           let deleteCall = function(data){
-            //             console.log(JSON.stringify(data)+'删除成功')
-            //           }
-            //           deleteHandle(tirClass, item['_id'], deleteCall)
-            //         }
-            //         createClass(secClass, obj, createCall)
-            //       }
-            //       findbyId(tirClass,item['_id'], findCall)
-            //     })
-            //   }
-            // }
-            createClass(firClass, obj, function(data){
-              console.log(`${data}why`)
-              if(secClassData.tirClssifyId.length){
-                secClassData.tirClssifyId.forEach(function(item, index){
-                  let findCall = function(findData){
+            let createCall = function (data) {
+              if (secClassData.tirClssifyId.length) {
+                secClassData.tirClssifyId.forEach(function (item, index) {
+                  let findCall = function (findData) {
                     let obj = {
                       name: findData.name,
                       mobilename: findData.mobilename,
@@ -678,69 +697,80 @@ export function updatefirClassify(req, callback) {
                       pic: findData.pic,
                       firClssifyId: data['_id']
                     }
-                    let createCall = function(creatData){
+                    let createCall = function (creatData) {
                       data.secClssifyId.push(creatData['_id'])
                       saveHandle(data)
-                      let deleteCall = function(data){
-                        console.log(JSON.stringify(data)+'删除成功')
+                      let deleteCall = function (data) {
+                        console.log(`${data}删除成功`)
                       }
-                      deleteHandle(tirClass, item['_id'], deleteCall)
+                      deleteHandle(tirClass, {
+                        '_id': item['_id']
+                      }, deleteCall)
                     }
                     createClass(secClass, obj, createCall)
                   }
-                  findbyId(tirClass,item['_id'], findCall)
+                  findbyId(tirClass, item['_id'], findCall)
                 })
               }
-            })
+
+              let deleteSec = function (data) {
+                console.log(`${data}删除成功`)
+              }
+              deleteHandle(secClass, {
+                '_id': secClassData['id']
+              }, deleteSec)
+            }
+
+            createNew(firClass, config, createCall)
             return
           }
 
-          if (!classifyInfo.secClassify&& classifyInfo.firstClassify) {
+          if (!classifyInfo.secClassify && classifyInfo.firstClassify) {
             secClassData.name = classifyInfo.name;
             secClassData.sort = classifyInfo.sort
             secClassData.mobilename = classifyInfo.mobilename
             secClassData.color = classifyInfo.color
             secClassData.pic = imgUrl
             secClassData.isShow = classifyInfo.isShow
-              if(classifyInfo.firstClassify!==secClassData.firClssifyId){
-                let resCall = function(data){
-                  secClassData.firClssifyId = classifyInfo.firstClassify
-                  data.secClssifyId.push(secClassData.id)
-                  saveHandle(data)
-                  let changeInfo = () => {
-                    let obj = {
-                      success: true,
-                      message: '修改成功'
-                    }
-                    callback(obj)
-                  }
-                  saveHandle(secClassData, changeInfo)
-                }
-                let changeId = function(data){
-                  data.secClssifyId = data.secClssifyId.filter(function(item){
-                      console.log(item, classifyInfo.id)
-                      return item != secClassData.id
-                  })
-                  saveHandle(data)
-                  // data.secClssifyId.forEach(function(item, index){
-                  //   if(item === classifyInfo.id){
-                  //     data.secClssifyId.s
-                  //   }
-                  // })
-                }
-                findbyId(firClass, secClassData.firClssifyId, changeId)
-                findbyId(firClass, classifyInfo.firstClassify, resCall)
-               
-              }else{
-                let resCall = () => {
+            if (classifyInfo.firstClassify !== secClassData.firClssifyId) {
+              let resCall = function (data) {
+                secClassData.firClssifyId = classifyInfo.firstClassify
+                data.secClssifyId.push(secClassData.id)
+                saveHandle(data)
+                let changeInfo = () => {
                   let obj = {
                     success: true,
                     message: '修改成功'
                   }
                   callback(obj)
                 }
-                saveHandle(secClassData, resCall)
+                saveHandle(secClassData, changeInfo)
               }
+              let changeId = function (data) {
+                data.secClssifyId = data.secClssifyId.filter(function (item) {
+                  console.log(item, classifyInfo.id)
+                  return item != secClassData.id
+                })
+                saveHandle(data)
+                // data.secClssifyId.forEach(function(item, index){
+                //   if(item === classifyInfo.id){
+                //     data.secClssifyId.s
+                //   }
+                // })
+              }
+              findbyId(firClass, secClassData.firClssifyId, changeId)
+              findbyId(firClass, classifyInfo.firstClassify, resCall)
+
+            } else {
+              let resCall = () => {
+                let obj = {
+                  success: true,
+                  message: '修改成功'
+                }
+                callback(obj)
+              }
+              saveHandle(secClassData, resCall)
+            }
             return
           }
           if (secClassData.tirClssifyId.length && classifyInfo.secClassify) {
@@ -764,8 +794,8 @@ export function updatefirClassify(req, callback) {
               if (err) {
                 console.error(err)
               }
-              let changeId = function(changeData){
-                changeData.secClssifyId = changeData.secClssifyId.filter(function(item){
+              let changeId = function (changeData) {
+                changeData.secClssifyId = changeData.secClssifyId.filter(function (item) {
                   return item != secClassData['_id']
                 })
                 saveHandle(changeData)
@@ -783,8 +813,102 @@ export function updatefirClassify(req, callback) {
             })
             return
           }
-          
+
         })
+      }
+      if (classifyInfo.level === 3) {
+        let config = {
+          name: classifyInfo.name,
+          mobilename: classifyInfo.mobilename,
+          sort: classifyInfo.sort,
+          color: classifyInfo.color,
+          pic: imgUrl,
+          isShow: classifyInfo.isShow
+        }
+        let tirCall = function (tirData) {
+          let tirId = tirData['_id']
+          if (classifyInfo.firstClassify && classifyInfo.secClassify) {
+            if (classifyInfo.secClassify != tirData.secClssifyId) {
+              let newClassCb = function (data) {
+                data.tirClssifyId.push(tirId)
+                saveHandle(data)
+              }
+              let oldClassCb = function (oldData) {
+                oldData.tirClssifyId = oldData.tirClssifyId.filter(function (item) {
+                  return item != tirId
+                })
+                saveHandle(oldData)
+              }
+              findbyId(secClass, tirData.secClssifyId, oldClassCb)
+              findbyId(secClass, classifyInfo.secClassify, newClassCb)
+              tirData.name = classifyInfo.name;
+              tirData.mobilename = classifyInfo.mobilename;
+              tirData.color = classifyInfo.color;
+              tirData.sort = classifyInfo.sort;
+              tirData.pic = imgUrl;
+              tirData.isShow = classifyInfo.isShow;
+              tirData.secClssifyId = classifyInfo.secClassify;
+              saveHandle(tirData)
+              return
+            } else {
+              tirData.name = classifyInfo.name;
+              tirData.mobilename = classifyInfo.mobilename;
+              tirData.color = classifyInfo.color;
+              tirData.sort = classifyInfo.sort;
+              tirData.pic = imgUrl;
+              tirData.isShow = classifyInfo.isShow;
+
+              saveHandle(tirData)
+              return
+            }
+          }
+          if (classifyInfo.firstClassify && !classifyInfo.secClassify) {
+            let romoveClass = function (data) {
+              data.tirClssifyId = data.tirClssifyId.filter(function (item) {
+                return item != tirId
+              })
+              saveHandle(data)
+            }
+            let createClassBc = function (data) {
+              let firClassBc = function (firData) {
+                firData.secClssifyId.push(data['_id'])
+                saveHandle(firData)
+              }
+              findbyId(firClass, classifyInfo.firstClassify, firClassBc)
+            }
+            let deleteTir = function (data) {
+              console.log(`${data}`)
+            }
+            config.firClssifyId = classifyInfo.firstClassify
+            findbyId(secClass, tirData.secClssifyId, romoveClass)
+            createNew(secClass, config, createClassBc)
+            console.log(22321)
+            deleteHandle(tirClass, {
+              '_id': tirId
+            }, deleteTir)
+            return
+          }
+          if (!classifyInfo.firstClassify) {
+            let romoveClass = function (data) {
+              data.tirClssifyId = data.tirClssifyId.filter(function (item) {
+                return item != tirId
+              })
+              saveHandle(data)
+            }
+            let deleteTir = function (data) {
+              console.log(`${data}删除成功`)
+            }
+            findbyId(secClass, tirData.secClssifyId, romoveClass)
+            console.log(11232312)
+            createNew(firClass, config)
+            deleteHandle(tirClass, {
+              '_id': tirId
+            }, deleteTir)
+            return
+          }
+        }
+        findbyId(tirClass, classifyInfo.id, tirCall)
+        return
       }
     })
 
