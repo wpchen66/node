@@ -18,4 +18,5 @@ router.get('/getTirClassify', route.getTirClassify)
 router.post('/updatefirClassify', route.updatefirClassify)
 router.get('/removeGoods', route.removeGoods)
 router.get('/removeClassify', route.removeClassify)
+router.post('/addBrand', route.addBrand)
 export default router

@@ -202,3 +202,24 @@ export function createNew (Model, config, callback) {
     }
   })
 }
+
+export function find(Model, config, callback){
+  Model.find(config, function(err, data){
+    if(err){
+      console.error(err)
+    }
+    if(callback){
+      callback(data)
+    }
+  })
+}
+
+// export function mapFind(arr,mark){
+//   if(arr){
+//     arr.forEach(item => {
+//       if(item[mark].length){
+
+//       }
+//     })
+//   }
+// }

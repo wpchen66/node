@@ -6,16 +6,16 @@
 </template>
 <script>
 import Vue from "vue";
-import { Tree } from "element-ui";
+import { Tree, Message } from "element-ui";
 Vue.use(Tree);
 export default {
-  props:{
+  props: {
     setAdd: Function
   },
   data() {
     return {
       data: [],
-      firstClassify: '',
+      firstClassify: "",
       defaultProps: {
         children: "children",
         label: "label"
@@ -42,8 +42,8 @@ export default {
   },
   methods: {
     handleNodeClick: function(val, Node) {
-      if(val.children || Node.level === 3){
-        return
+      if (val.children || Node.level === 3) {
+        return;
       }
       let secList = [];
       if (Node.level === 1) {
@@ -60,14 +60,13 @@ export default {
             let obj = {};
             obj.id = item["_id"];
             obj.label = item["name"];
-           obj.info = item
-           obj.info.level =2
+            obj.info = item;
+            obj.info.level = 2;
             secList.push(obj);
           });
           this.$refs.tree.updateKeyChildren(val.id, secList);
         });
       } else if (Node.level === 2) {
-        
         this.$http({
           type: "GET",
           url: "/api/getTirClassify",
@@ -80,12 +79,12 @@ export default {
             let obj = {};
             obj.id = item["_id"];
             obj.label = item["name"];
-            obj.info = item
-            obj.info.level = 3,
-            obj.info.firClssifyId =  Node.data.info.firClssifyId
+            obj.info = item;
+            (obj.info.level = 3),
+              (obj.info.firClssifyId = Node.data.info.firClssifyId);
             secList.push(obj);
           });
-          console.log()
+          console.log();
           this.$refs.tree.updateKeyChildren(val.id, secList);
         });
       }
@@ -113,17 +112,41 @@ export default {
         </span>
       );
     },
-    getNode: function(data){
-      console.log(data.info)
-      this.$store.dispatch('setClassifyInfo', data.info)
-      this.setAdd(true)
+    getNode: function(data) {
+      console.log(data.info);
+      this.$store.dispatch("setClassifyInfo", data.info);
+      this.setAdd(true);
     },
-    remove(node, data){
-      console.log(node, data)
+    remove(node, data) {
+      console.log(node, data);
       this.$http({
-        type: 'GET',
-        url: '/api/removeClassify'
-      })
+        type: "GET",
+        url: "/api/removeClassify",
+        params: {
+          classifyInfo: data.info
+        }
+      }).then(res => {
+        Message.success({
+          message: res.data.message
+        })
+        this.$http({
+          type: "GET",
+          url: "/api/getFirClassify"
+        }).then(res => {
+          this.data = [];
+          let data = res.data.data;
+          data.forEach((item, index) => {
+            let info = item;
+            info.level = 1;
+            let obj = {
+              label: item.name,
+              id: item["_id"],
+              info
+            };
+            this.data.push(obj);
+          });
+        });
+      });
     }
   }
 };

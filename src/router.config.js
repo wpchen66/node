@@ -18,6 +18,11 @@ const GoodsList = (resolve) => {
     resolve(module)
   })
 }
+const BrandList = (resolve) => {
+  import('com/brandList/brandList').then(module =>{
+    resolve(module)
+  })
+}
 const Index = (resolve) => {
   import('com/index/index').then(module => {
     resolve(module)
@@ -66,6 +71,11 @@ const router = new VueRouter({
           path: 'classifylist',
           name: 'classifylist',
           component: ClassifyList
+        },
+        {
+          path: 'brandlist',
+          name: 'brandlist',
+          component: BrandList
         }
       ]
     }

@@ -19,7 +19,8 @@ import {
   deleteHandle,
   findbyId,
   createClass,
-  createNew
+  createNew,
+  find
 } from '../util/util.js'
 import {
   rejects
@@ -337,8 +338,8 @@ export function updataGoods(req, callback) {
                 res.des = des
                 res.number = number
                 res.firClssifyId = goodsInfo.firstClassify,
-                res.secClssifyId = goodsInfo.secClassify,
-                res.tirClssifyId = goodsInfo.tirClassify
+                  res.secClssifyId = goodsInfo.secClassify,
+                  res.tirClssifyId = goodsInfo.tirClassify
                 newarr = [...arr, ...imgList]
                 res.pic = newarr;
                 res.save(function (err, data) {
@@ -360,8 +361,8 @@ export function updataGoods(req, callback) {
         res.number = number
         res.pic = arr;
         res.firClssifyId = goodsInfo.firstClassify,
-        res.secClssifyId = goodsInfo.secClassify,
-        res.tirClssifyId = goodsInfo.tirClassify
+          res.secClssifyId = goodsInfo.secClassify,
+          res.tirClssifyId = goodsInfo.tirClassify
         res.save(function (err, data) {
           if (err) {
             console.log(err)
@@ -380,15 +381,17 @@ export function updataGoods(req, callback) {
   })
 }
 
-export function removeGoods(id, callback){
-  let removeGoodsInfo = function(data){
+export function removeGoods(id, callback) {
+  let removeGoodsInfo = function (data) {
     let obj = {
       success: true,
       message: `删除成功`
     }
     callback(obj)
   }
-  deleteHandle(goodsModel, {'_id': id}, removeGoodsInfo)
+  deleteHandle(goodsModel, {
+    '_id': id
+  }, removeGoodsInfo)
 }
 
 export function addClassify(req, callback) {
@@ -749,7 +752,7 @@ export function updatefirClassify(req, callback) {
               let changeId = function (data) {
                 data.secClssifyId = data.secClssifyId.filter(function (item) {
                   console.log(item, classifyInfo.id)
-                  return item != secClassData.id
+                  return String(item) != String(secClassData.id)
                 })
                 saveHandle(data)
                 // data.secClssifyId.forEach(function(item, index){
@@ -796,7 +799,7 @@ export function updatefirClassify(req, callback) {
               }
               let changeId = function (changeData) {
                 changeData.secClssifyId = changeData.secClssifyId.filter(function (item) {
-                  return item != secClassData['_id']
+                  return String(item) != String(secClassData['_id'])
                 })
                 saveHandle(changeData)
               }
@@ -835,7 +838,7 @@ export function updatefirClassify(req, callback) {
               }
               let oldClassCb = function (oldData) {
                 oldData.tirClssifyId = oldData.tirClssifyId.filter(function (item) {
-                  return item != tirId
+                  return String(item) != String(tirId)
                 })
                 saveHandle(oldData)
               }
@@ -865,7 +868,7 @@ export function updatefirClassify(req, callback) {
           if (classifyInfo.firstClassify && !classifyInfo.secClassify) {
             let romoveClass = function (data) {
               data.tirClssifyId = data.tirClssifyId.filter(function (item) {
-                return item != tirId
+                return String(item) != String(tirId)
               })
               saveHandle(data)
             }
@@ -891,7 +894,7 @@ export function updatefirClassify(req, callback) {
           if (!classifyInfo.firstClassify) {
             let romoveClass = function (data) {
               data.tirClssifyId = data.tirClssifyId.filter(function (item) {
-                return item != tirId
+                return String(item) != String(tirId)
               })
               saveHandle(data)
             }
@@ -913,5 +916,152 @@ export function updatefirClassify(req, callback) {
     })
 
 
+  })
+}
+
+export function removeClassify(classifyInfo, callback) {
+  classifyInfo = JSON.parse(classifyInfo)
+  let {
+    level,
+    _id
+  } = classifyInfo
+  console.log(classifyInfo)
+  if (level == 1) {
+    console.log(1)
+    let goodsBc = function (data) {
+      if (!data.length) {
+        let searchBc = function (data) {
+          if (data.secClssifyId.length) {
+            data.secClssifyId.forEach(function (item) {
+              let secBc = function (secData){
+                console.log(secData)
+                if (secData.tirClssifyId && secData.tirClssifyId.length) {
+                  secData.tirClssifyId.forEach(key => {
+                    deleteHandle(tirClass, {
+                      '_id': key['_id']
+                    })
+                  })
+                }
+                deleteHandle(secClass, {
+                  '_id': item
+                })
+              }
+              findbyId(secClass, item, secBc)
+            })
+          }
+          let deleteSuccess = function (data) {
+            let obj = {
+              success: true,
+              message: '删除成功'
+            }
+            callback(obj)
+          }
+          deleteHandle(firClass, {
+            '_id': data['_id']
+          }, deleteSuccess)
+        }
+        findbyId(firClass, _id, searchBc)
+        return
+      } else {
+        let obj = {
+          success: true,
+          message: '该分类下有商品，无法删除'
+        }
+        callback(obj)
+        return
+      }
+    }
+    find(goodsModel, {
+      firClssifyId: _id
+    }, goodsBc)
+  }
+  if (level == 2) {
+    let searchBc = function (data) {
+      if (!data.length) {
+        let secClassBc = function (secData) {
+          let firBc = function (firData) {
+            firData.secClssifyId = firData.secClssifyId.filter(function (item) {
+              return String(item) != String(secData['_id'])
+            })
+            console.log(firData.secClssifyId)
+            let zs = function(data){
+              console.log(data)
+            } 
+            saveHandle(firData, zs)
+          }
+          findbyId(firClass, secData.firClssifyId, firBc)
+          if (secData.tirClssifyId.length) {
+            secData.tirClssifyId.forEach(function (tir) {
+              deleteHandle(tirClass, {'_id':tir['_id']})
+            })
+          }
+          let deleteSec = function(data){
+            let obj = {
+              success: true,
+              message: '删除成功'
+            }
+            callback(obj)
+          }
+          deleteHandle(secClass, {'_id': secData['_id']}, deleteSec)
+        }
+        console.log(_id)
+        findbyId(secClass, _id, secClassBc)
+      } else {
+        let obj = {
+          success: true,
+          message: '该分类下有商品，无法删除'
+        }
+        callback(obj)
+        return
+      }
+    }
+    find(goodsModel, {
+      secClssifyId: _id
+    }, searchBc)
+    return
+  }
+  if (level == 3) {
+    let searchBc = function (data) {
+      if (!data.length) {
+        let tirBc = function (tirData){
+          let secBc = function (secData){
+            secData.tirClssifyId = secData.tirClssifyId.filter(function (item) {
+              return String(item) != String(tirData['_id'])
+            })
+            saveHandle(secData)
+          }
+          let deleteTir = function (data){
+            obj = {
+              success: true,
+              message: '删除成功'
+            }
+            callback(obj)
+          }
+          findbyId(secClass, tirData.secClssifyId,secBc)
+          deleteHandle(tirClass, {_id: _id}, deleteTir)
+        }
+        findbyId(tirClass, _id, tirBc)
+      } else {
+        let obj = {
+          success: true,
+          message: '该分类下有商品，无法删除'
+        }
+        callback(obj)
+        return
+      }
+    }
+    find(goodsModel, {
+      _id: _id
+    }, searchBc)
+  }
+}
+
+export function addBrand(req, callback){
+  let form = new formidable.IncomingForm()
+  form.parse(req, function(err, fields, files){
+    if(err){
+      console.error(err)
+    }
+    console.log(fields, files)
   })
 }

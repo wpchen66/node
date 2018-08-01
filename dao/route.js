@@ -106,5 +106,16 @@ export function updatefirClassify(req, res){
 }
 
 export function removeClassify(req, res){
-  console.log(req)
+  let classifyInfo = req.query.classifyInfo
+  let callback = function(data){
+    res.send(data)
+  }
+  db.removeClassify(classifyInfo, callback)
 }
+
+export function addBrand(req, res){
+  let callback = function(data){
+    res.send(data)
+  }
+  db.addBrand(req, callback)
+} 

@@ -146,6 +146,27 @@ let tirClssifySchema = new mogoose.Schema({
   }
 })
 
+let brandSchema = new Schema({
+  name: {
+    type: String
+  },
+  firClssifyId:{
+    type: String
+  },
+  secClssifyId:{
+    type: String
+  },
+  tirClssifyId:{
+    type: String
+  },
+  sort: {
+    type: Number
+  },
+  pic: {
+    type: String
+  }
+})
+
 export const firClass = mogoose.model('firClssify', firClssifySchema)
 export const secClass = mogoose.model('secClssify', secClssifySchema)
 export const tirClass = mogoose.model('tirClssify', tirClssifySchema)

@@ -17,6 +17,12 @@
           <span>添加商品分类</span>
         </router-link>
       </el-menu-item>
+      <el-menu-item index="3">
+        <router-link to="/index/brandlist">
+          <i class="el-icon-tickets"></i>
+          <span>品牌列表</span>
+        </router-link>
+      </el-menu-item>
     </el-menu>
   </div>
 </template>
